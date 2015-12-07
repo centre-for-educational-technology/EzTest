@@ -1,0 +1,7 @@
+{
+    "require": {
+        "twig/twig": "~1.0",
+        "qtism/qtism": "~3.0",
+        "klein/klein": "~2.0"
+    }
+}
