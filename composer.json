@@ -1,7 +1,12 @@
 {
     "require": {
-        "twig/twig": "~1.0",
-        "qtism/qtism": "~3.0",
-        "klein/klein": "~2.0"
+        "twig/twig": "1.18.2",
+        "klein/klein": "~2.0",
+        "learnosity/learnosity-qti": "^0.5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "System\\": "src/"
+        }
     }
 }
