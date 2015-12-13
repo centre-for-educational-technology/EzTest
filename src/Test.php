@@ -17,28 +17,33 @@ class Test
 	
 	public static function HandleRender( $request, $response, $service )
 	{
-		//$xmlString = file_get_contents( 'examples/Tests/assessmentTest_SCORE.xml' );
-		$xmlString = file_get_contents( '../qtifiles/choice2.xml' );
-		list($item, $questions, $manifest) = Converter::convertQtiItemToLearnosity($xmlString);
+		$files = glob('../qtifiles/interactions/*.xml');
+		
+		$questions = [];
+		
+		foreach( $files as $file )
+		{
+			try
+			{
+				$xmlString = file_get_contents( $file );
+				$converted = Converter::convertQtiItemToLearnosity($xmlString);
+				
+				$questions = array_merge( $questions, $converted[ 1 ] );
+				
+			}
+			catch( \Exception $e )
+			{
+				echo 'Failed to convert ' . $file . PHP_EOL;
+			}
+			
+		}
 
-		echo '<pre>';
-		print_r($item);
-		print_r($questions);
-		print_r($manifest);
-		echo '</pre>';
-
-		$xmlString = file_get_contents( '../qtifiles/choice_multiple.xml' );
-		$test = Converter::convertQtiItemToLearnosity($xmlString);
-		$questions[1] = $test[1][0];
-
-
+		echo '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">';
 		echo '<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>';
-		echo '<br><br><br>';
-
+		
 		$questionid = 0;
 
 		echo '<form method="POST" class="container">';
-		//echo '<h3>Item Title: ' . $item[ 'description' ] . '</h3>';
 
 		// https://docs.learnosity.com/authoring/qti/index
 		// https://docs.learnosity.com/assessment/questions/questiontypes#mcq
@@ -46,10 +51,10 @@ class Test
 		{
 			$questionid++;
 			
+			echo '<h3 class="text-muted">Question #' . $questionid . ':</h3><h4>' . ( isset( $question[ 'data' ][ 'stimulus' ] ) ? $question[ 'data' ][ 'stimulus' ] : '' ) . '</h4>';
+			
 			if( $question[ 'type' ] === 'mcq' )
 			{
-				echo '<h3 class="text-muted">Question #' . $questionid . ':</h3><h4>' . $question[ 'data' ][ 'stimulus' ] . '</h4>';
-				
 				if( isset( $question[ 'data' ][ 'shuffle_options' ] ) && $question[ 'data' ][ 'shuffle_options' ] )
 				{
 					shuffle( $question[ 'data' ][ 'options' ] );
@@ -59,11 +64,47 @@ class Test
 				
 				foreach( $question[ 'data' ][ 'options' ] as $key => $option )
 				{
-					echo '<div class="' . ( $Checkboxes ? 'checkbox' : 'radio' ) . '"><label>';
-					echo '<input type="' . ( $Checkboxes ? 'checkbox' : 'radio' ) . '" id="question_' . $questionid . '_answer_' . $key . '" name="question_' . $questionid . '_answer' . ( $Checkboxes ? '[]' : '' ) . '" value="' . $option[ 'value' ] . '">';
-					echo ' ' . $option[ 'label' ];
-					echo '</label></div>';
+					if( $Checkboxes )
+					{
+						echo '<div class="checkbox"><label>';
+						echo '<input type="checkbox" id="question_' . $questionid . '_answer_' . $key . '" name="question_' . $questionid . '_answer[]" value="' . $option[ 'value' ] . '">';
+						echo ' ' . $option[ 'label' ];
+						echo '</label></div>';
+					}
+					else
+					{
+						echo '<div class="radio"><label>';
+						echo '<input type="radio" id="question_' . $questionid . '_answer_' . $key . '" name="question_' . $questionid . '_answer" value="' . $option[ 'value' ] . '">';
+						echo ' ' . $option[ 'label' ];
+						echo '</label></div>';
+					}
 				}
+			}
+			else if( $question[ 'type' ] === 'longtext' )
+			{
+				// Maximum number of words that can be entered in the field.
+				
+				echo '<textarea class="form-control" rows="4" name="question_' . $questionid . '_answer"></textarea>';
+			}
+			else if( $question[ 'type' ] === 'clozeassociation' )
+			{
+				$Responses = [ '<option selected="selected" value="-1"></option>' ];
+				
+				foreach( $question[ 'data' ][ 'possible_responses' ] as $Key => $Response )
+				{
+					$Responses[] = '<option value="' . $Key . '">' . $Response . '</option>';
+				}
+				
+				$Responses = '<select id="question_' . $questionid . '_answer">' . implode( '', $Responses ) . '</select>';
+				
+				$Template = str_replace( '{{response}}', $Responses, $question[ 'data' ][ 'template' ] );
+				
+				echo $Template;
+			}
+			else {
+				echo '<pre>';
+				print_r($question);
+				echo '</pre>';
 			}
 			
 			echo '<hr>';
