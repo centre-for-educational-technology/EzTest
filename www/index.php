@@ -16,6 +16,8 @@ $Klein->respond( 'GET', '/', function()
 	return 'Hello World!';
 } );
 
+$Klein->respond( 'GET', '/question/[i:ID]', [ 'System\Test', 'DisplayQuestion' ] );
+
 $Klein->respond( 'GET', '/test', [ 'System\Test', 'HandleRender' ] );
 $Klein->respond( 'POST', '/test', [ 'System\Test', 'HandleAnswer' ] );
 

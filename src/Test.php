@@ -5,6 +5,23 @@ use LearnosityQti\Converter;
 
 class Test
 {
+	public static function DisplayQuestion( $Request, $Response, $Service, $App )
+	{
+		$Question = $App->Database->prepare( 'SELECT * FROM `questions` WHERE `QuestionID` = :id' );
+		$Question->bindValue( ':id', $Request->ID, \PDO::PARAM_INT );
+		$Question->execute();
+		$Question = $Question->fetch();
+		
+		if( !$Question )
+		{
+			$Response->code( 404 );
+			
+			return 'Question not found';
+		}
+		
+		var_dump($Question);
+	}
+	
 	public static function HandleAnswer( $Request, $Response, $Service, $App )
 	{
 		echo '<pre>';
@@ -21,6 +38,11 @@ class Test
 		
 		$questions = [];
 		
+		$NewQuestion = $App->Database->prepare(
+			'INSERT INTO `questions` (`Type`, `Stimulus`, `Data`, `Hash`) ' .
+			'VALUES (:type, :stimulus, :data, :hash)'
+		);
+		
 		foreach( $files as $file )
 		{
 			try
@@ -30,6 +52,24 @@ class Test
 				
 				$questions = array_merge( $questions, $converted[ 1 ] );
 				
+				foreach( $converted[ 1 ] as $Data )
+				{
+					$Data = $Data[ 'data' ];
+					$Type = $Data[ 'type' ];
+					$Stimulus = isset( $Data[ 'stimulus' ] ) ? $Data[ 'stimulus' ] : '';
+					
+					unset( $Data[ 'stimulus' ], $Data[ 'type' ] );
+					
+					$Data = json_encode( $Data );
+					
+					$NewQuestion->bindValue( ':type', $Type );
+					$NewQuestion->bindValue( ':stimulus', $Stimulus );
+					$NewQuestion->bindValue( ':data', $Data );
+					$NewQuestion->bindValue( ':hash', md5( $Data ) );
+					$NewQuestion->execute();
+					
+					unset( $Data, $Type, $Stimulus );
+				}
 			}
 			catch( \Exception $e )
 			{
