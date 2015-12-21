@@ -7,7 +7,7 @@ class Test
 {
 	public static function DisplayQuestion( $Request, $Response, $Service, $App )
 	{
-		$Question = $App->Database->prepare( 'SELECT * FROM `questions` WHERE `QuestionID` = :id' );
+		$Question = $App->Database->prepare( 'SELECT `QuestionID`, `Type`, `Stimulus`, `Data` FROM `questions` WHERE `QuestionID` = :id' );
 		$Question->bindValue( ':id', $Request->ID, \PDO::PARAM_INT );
 		$Question->execute();
 		$Question = $Question->fetch();
@@ -19,17 +19,46 @@ class Test
 			return 'Question not found';
 		}
 		
-		var_dump($Question);
+		return self::RenderQuestion( $Question );
 	}
 	
-	public static function HandleAnswer( $Request, $Response, $Service, $App )
+	public static function HandleQuestionAnswer( $Request, $Response, $Service, $App )
 	{
+		$Question = $App->Database->prepare( 'SELECT `Data` FROM `questions` WHERE `QuestionID` = :id' );
+		$Question->bindValue( ':id', $Request->ID, \PDO::PARAM_INT );
+		$Question->execute();
+		$Question = $Question->fetch();
+		
+		if( !$Question )
+		{
+			$Response->code( 404 );
+			
+			return;
+		}
+		
+		$Question = json_decode( $Question->Data, true );
+		
 		echo '<pre>';
 		if( !empty( $_POST ) )
 		{
 			print_r( $_POST );
 		}
+		print_r( $Question );
 		echo '</pre>';
+	}
+	
+	public static function DisplayAllQuestions( $Request, $Response, $Service, $App )
+	{
+		$Questions = $App->Database->query( 'SELECT `QuestionID`, `Type`, `Stimulus` FROM `questions` WHERE `QuestionID`' )->fetchAll();
+		
+		echo '<ul>';
+		
+		foreach( $Questions as $Question )
+		{
+			echo '<li><b>' . $Question->Type . '</b> <a href="/question/' . $Question->QuestionID . '">' . $Question->Stimulus . '</a></li>';
+		}
+		
+		echo '</ul>';
 	}
 	
 	public static function HandleRender( $Request, $Response, $Service, $App )
@@ -75,82 +104,80 @@ class Test
 			{
 				echo 'Failed to convert ' . $file . PHP_EOL;
 			}
-			
 		}
-
+	}
+	
+	private static function RenderQuestion( $Question )
+	{
 		echo '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">';
 		echo '<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>';
 		
-		$questionid = 0;
-
-		echo '<form method="POST" class="container">';
+		echo '<form method="POST" action="/question/' . $Question->QuestionID . '" class="container">';
 
 		// https://docs.learnosity.com/authoring/qti/index
 		// https://docs.learnosity.com/assessment/questions/questiontypes#mcq
-		foreach( $questions as $question )
+		echo '<h4>' . $Question->Stimulus . '</h4>';
+		
+		$questionid = $Question->QuestionID;
+		
+		$Data = json_decode( $Question->Data, true );
+		
+		if( $Question->Type === 'mcq' )
 		{
-			$questionid++;
-			
-			echo '<h3 class="text-muted">Question #' . $questionid . ':</h3><h4>' . ( isset( $question[ 'data' ][ 'stimulus' ] ) ? $question[ 'data' ][ 'stimulus' ] : '' ) . '</h4>';
-			
-			if( $question[ 'type' ] === 'mcq' )
+			if( isset( $Data[ 'shuffle_options' ] ) && $Data[ 'shuffle_options' ] )
 			{
-				if( isset( $question[ 'data' ][ 'shuffle_options' ] ) && $question[ 'data' ][ 'shuffle_options' ] )
-				{
-					shuffle( $question[ 'data' ][ 'options' ] );
-				}
-				
-				$Checkboxes = isset( $question[ 'data' ][ 'multiple_responses' ] ) && $question[ 'data' ][ 'multiple_responses' ];
-				
-				foreach( $question[ 'data' ][ 'options' ] as $key => $option )
-				{
-					if( $Checkboxes )
-					{
-						echo '<div class="checkbox"><label>';
-						echo '<input type="checkbox" id="question_' . $questionid . '_answer_' . $key . '" name="question_' . $questionid . '_answer[]" value="' . $option[ 'value' ] . '">';
-						echo ' ' . $option[ 'label' ];
-						echo '</label></div>';
-					}
-					else
-					{
-						echo '<div class="radio"><label>';
-						echo '<input type="radio" id="question_' . $questionid . '_answer_' . $key . '" name="question_' . $questionid . '_answer" value="' . $option[ 'value' ] . '">';
-						echo ' ' . $option[ 'label' ];
-						echo '</label></div>';
-					}
-				}
-			}
-			else if( $question[ 'type' ] === 'longtext' )
-			{
-				// Maximum number of words that can be entered in the field.
-				$MaxLength = isset( $question[ 'data' ][ 'max_length' ] ) ? (int)$question[ 'data' ][ 'max_length' ] : 10000;
-				
-				echo '<textarea class="form-control" rows="4" name="question_' . $questionid . '_answer"></textarea>';
-			}
-			else if( $question[ 'type' ] === 'clozeassociation' )
-			{
-				$Responses = [ '<option selected="selected" value="-1"></option>' ];
-				
-				foreach( $question[ 'data' ][ 'possible_responses' ] as $Key => $Response )
-				{
-					$Responses[] = '<option value="' . $Key . '">' . $Response . '</option>';
-				}
-				
-				$Responses = '<select id="question_' . $questionid . '_answer">' . implode( '', $Responses ) . '</select>';
-				
-				$Template = str_replace( '{{response}}', $Responses, $question[ 'data' ][ 'template' ] );
-				
-				echo $Template;
-			}
-			else {
-				echo '<pre>';
-				print_r($question);
-				echo '</pre>';
+				shuffle( $Data[ 'options' ] );
 			}
 			
-			echo '<hr>';
+			$Checkboxes = isset( $Data[ 'multiple_responses' ] ) && $Data[ 'multiple_responses' ];
+			
+			foreach( $Data[ 'options' ] as $key => $option )
+			{
+				if( $Checkboxes )
+				{
+					echo '<div class="checkbox"><label>';
+					echo '<input type="checkbox" id="question_' . $questionid . '_answer_' . $key . '" name="question_' . $questionid . '_answer[]" value="' . $option[ 'value' ] . '">';
+					echo ' ' . $option[ 'label' ];
+					echo '</label></div>';
+				}
+				else
+				{
+					echo '<div class="radio"><label>';
+					echo '<input type="radio" id="question_' . $questionid . '_answer_' . $key . '" name="question_' . $questionid . '_answer" value="' . $option[ 'value' ] . '">';
+					echo ' ' . $option[ 'label' ];
+					echo '</label></div>';
+				}
+			}
 		}
-
+		else if( $Question->Type === 'longtext' )
+		{
+			// Maximum number of words that can be entered in the field.
+			$MaxLength = isset( $Data[ 'max_length' ] ) ? (int)$Data[ 'max_length' ] : 10000;
+			
+			echo '<textarea class="form-control" rows="4" name="question_' . $questionid . '_answer"></textarea>';
+		}
+		else if( $Question->Type === 'clozeassociation' )
+		{
+			$Responses = [ '<option selected="selected" value="-1"></option>' ];
+			
+			foreach( $Data[ 'possible_responses' ] as $Key => $Response )
+			{
+				$Responses[] = '<option value="' . $Key . '">' . $Response . '</option>';
+			}
+			
+			$Responses = '<select id="question_' . $questionid . '_answer">' . implode( '', $Responses ) . '</select>';
+			
+			$Template = str_replace( '{{response}}', $Responses, $Data[ 'template' ] );
+			
+			echo $Template;
+		}
+		else
+		{
+			echo '<pre>';
+			print_r($Data);
+			echo '</pre>';
+		}
+		
 		echo '<button type="submit" class="btn btn-primary">Answer</button></form>';
 	}
 }
