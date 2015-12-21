@@ -5,7 +5,7 @@ use LearnosityQti\Converter;
 
 class Test
 {
-	public static function HandleAnswer( $request, $response, $service )
+	public static function HandleAnswer( $Request, $Response, $Service, $App )
 	{
 		echo '<pre>';
 		if( !empty( $_POST ) )
@@ -15,7 +15,7 @@ class Test
 		echo '</pre>';
 	}
 	
-	public static function HandleRender( $request, $response, $service )
+	public static function HandleRender( $Request, $Response, $Service, $App )
 	{
 		$files = glob('../qtifiles/interactions/*.xml');
 		
@@ -83,6 +83,7 @@ class Test
 			else if( $question[ 'type' ] === 'longtext' )
 			{
 				// Maximum number of words that can be entered in the field.
+				$MaxLength = isset( $question[ 'data' ][ 'max_length' ] ) ? (int)$question[ 'data' ][ 'max_length' ] : 10000;
 				
 				echo '<textarea class="form-control" rows="4" name="question_' . $questionid . '_answer"></textarea>';
 			}

@@ -1,9 +1,15 @@
 <?php
-use System\Test;
-
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $Klein = new \Klein\Klein();
+
+$Klein->respond( function( $request, $response, $service, $app )
+{
+    $app->register( 'Database', function()
+	{
+        return System\Database::Setup();
+    } );
+} );
 
 $Klein->respond( 'GET', '/', function()
 {
