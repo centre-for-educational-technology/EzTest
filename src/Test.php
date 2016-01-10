@@ -24,7 +24,7 @@ class Test
 	
 	public static function HandleQuestionAnswer( $Request, $Response, $Service, $App )
 	{
-		$Question = $App->Database->prepare( 'SELECT `Data` FROM `questions` WHERE `QuestionID` = :id' );
+		$Question = $App->Database->prepare( 'SELECT `QuestionID`, `Type`, `Data` FROM `questions` WHERE `QuestionID` = :id' );
 		$Question->bindValue( ':id', $Request->ID, \PDO::PARAM_INT );
 		$Question->execute();
 		$Question = $Question->fetch();
@@ -36,26 +36,84 @@ class Test
 			return;
 		}
 		
-		$Question = json_decode( $Question->Data, true );
+		$Data = json_decode( $Question->Data, true );
 		
-		echo '<pre>';
+		switch( $Question->Type )
+		{
+			case 'mcq':
+			{
+				$ProvidedAnswer = filter_input(
+					INPUT_POST,
+					'question_' . $Question->QuestionID . '_answer',
+					FILTER_DEFAULT,
+					isset( $Data[ 'multiple_responses' ] ) ? FILTER_REQUIRE_ARRAY : 0
+				);
+				
+				var_dump( $ProvidedAnswer );
+				
+				// TODO: Handle Partial Match
+				// TODO: Handle alt_responses
+				// TODO: Handle scoring
+				if( $Data[ 'validation' ][ 'scoring_type' ] === 'exactMatch' )
+				{
+					$CorrectAnswer = $Data[ 'validation' ][ 'valid_response' ][ 'value' ];
+					
+					if( isset( $Data[ 'multiple_responses' ] ) )
+					{
+						foreach( $CorrectAnswer as $Answer )
+						{
+							$ProvidedAnswerFound = array_search( $Answer, $ProvidedAnswer );
+							
+							if( $ProvidedAnswerFound !== false )
+							{
+								unset( $ProvidedAnswer[ $ProvidedAnswerFound ] );
+								
+								echo '<h1><b>' . $Answer . '</b> is correct!</h1>';
+							}
+						}
+						
+						foreach( $ProvidedAnswer as $Answer )
+						{
+							echo '<b>' . $Answer . '</b> is an incorrect response<br>';
+						}
+					}
+					else
+					{
+						if( $CorrectAnswer[ 0 ] === $ProvidedAnswer )
+						{
+							echo '<h1>You answered correctly!</h1>';
+						}
+						else
+						{
+							echo 'Invalid answer. You answered: <b>' . $ProvidedAnswer . '</b>, correct answer is: <b><u>' . $CorrectAnswer[ 0 ] . '</u></b>';
+						}
+					}
+				}
+				
+				break;
+			}
+		}
+		
+		echo '<hr><pre>';
 		if( !empty( $_POST ) )
 		{
 			print_r( $_POST );
 		}
-		print_r( $Question );
+		print_r( $Data );
 		echo '</pre>';
 	}
 	
 	public static function DisplayAllQuestions( $Request, $Response, $Service, $App )
 	{
-		$Questions = $App->Database->query( 'SELECT `QuestionID`, `Type`, `Stimulus` FROM `questions` WHERE `QuestionID`' )->fetchAll();
+		echo '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">';
+		
+		$Questions = $App->Database->query( 'SELECT `QuestionID`, `Type`, `Stimulus` FROM `questions` ORDER BY `Type`' )->fetchAll();
 		
 		echo '<ul>';
 		
 		foreach( $Questions as $Question )
 		{
-			echo '<li><b>' . $Question->Type . '</b> <a href="/question/' . $Question->QuestionID . '">' . $Question->Stimulus . '</a></li>';
+			echo '<li><a href="/question/' . $Question->QuestionID . '">Question #' . $Question->QuestionID. ': <b> type ' . $Question->Type . '</b></a><div class="well">' . $Question->Stimulus . '</div></li>';
 		}
 		
 		echo '</ul>';
