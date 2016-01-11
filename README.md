@@ -1,10 +1,12 @@
 # EduSystem
-My final project!
 
+A lightweight student testing system.
 
 ## Installation
 
 ### Web server
+
+`www` folder must be the only folder that can be accessed over the web. Protect everything else.
 
 #### Apache
 Make sure `AllowOverride` is on for your directory, or put `www/.htaccess` rules in `httpd.conf`
