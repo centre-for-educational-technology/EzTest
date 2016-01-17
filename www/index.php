@@ -42,10 +42,14 @@ if( !isset( $_SESSION[ 'LoggedIn' ] ) )
 {
 	$Klein->respond( 'GET', '/login', [ 'System\Login', 'Render' ] );
 	$Klein->respond( 'POST', '/login', [ 'System\Login', 'Handle' ] );
+	
+	$Klein->respond( 'GET', '/', function() { echo '<a href="/login">Login</a>'; } );
 }
 else
 {
+	$Klein->respond( 'GET', '/logout', [ 'System\Login', 'HandleLogout' ] );
 	
+	$Klein->respond( 'GET', '/', function() { echo 'You are logged in! <a href="/logout">Logout</a>'; } );
 }
 
 $Klein->respond( 'GET', '/questions', [ 'System\Test', 'DisplayAllQuestions' ] );

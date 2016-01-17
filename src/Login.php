@@ -31,5 +31,14 @@ class Login
 		$_SESSION[ 'LoggedIn' ] = true;
 		$_SESSION[ 'UserID' ] = (int)$User->UserID;
 		$_SESSION[ 'Name' ] = $User->Name;
+		
+		$Response->redirect( '/' );
+	}
+	
+	public static function HandleLogout( $Request, $Response, $Service, $App )
+	{
+		session_destroy();
+		
+		$Response->redirect( '/' );
 	}
 }
