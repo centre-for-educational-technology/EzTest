@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
 
+session_start();
+
 $Klein = new \Klein\Klein();
 
 $Klein->respond( function( $Request, $Response, $Service, $App )
@@ -22,10 +24,29 @@ $Klein->respond( function( $Request, $Response, $Service, $App )
     } );
 } );
 
-$Klein->respond( 'GET', '/', function( $Request, $Response, $Service, $App )
+$Klein->onError( function( $Klein, $Message, $Type )
 {
-	echo $App->Twig->render( 'login.html', [ 'title' => 'Login to ' . \System\Config::$SystemName ] );
+	if( empty( $Message ) )
+	{
+		$Message = 'Unknown failure.';
+	}
+	
+	echo $Klein->App()->Twig->render( 'error.html', [
+		'title' => 'Error',
+		'type' => $Type,
+		'message' => $Message,
+	] );
 } );
+
+if( !isset( $_SESSION[ 'LoggedIn' ] ) )
+{
+	$Klein->respond( 'GET', '/login', [ 'System\Login', 'Render' ] );
+	$Klein->respond( 'POST', '/login', [ 'System\Login', 'Handle' ] );
+}
+else
+{
+	
+}
 
 $Klein->respond( 'GET', '/questions', [ 'System\Test', 'DisplayAllQuestions' ] );
 $Klein->respond( 'GET', '/question/[i:ID]', [ 'System\Test', 'DisplayQuestion' ] );

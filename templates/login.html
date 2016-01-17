@@ -2,21 +2,21 @@
 
 <div class="row">
 	<div class="medium-6 medium-centered large-4 large-centered columns">
-		<form>
+		<form method="POST" action="/login">
 			<div class="row column log-in-form">
 				<h4 class="text-center">Log in with you email account</h4>
 				
 				<label>
 					Email
-					<input type="email" placeholder="somebody@example.com">
+					<input type="email" placeholder="somebody@example.com" name="username">
 				</label>
 				
 				<label>
 					Password
-					<input type="password" placeholder="Password">
+					<input type="password" placeholder="Password" name="password">
 				</label>
 				
-				<p><a type="submit" class="button expanded">Log In</a></p>
+				<p><button type="submit" class="button expanded" name="login" value="yes">Log In</button></p>
 				<p class="text-center"><a href="#">Forgot your password?</a></p>   
 			</div>
 		</form>
