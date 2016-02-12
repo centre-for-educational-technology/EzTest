@@ -19,7 +19,7 @@ class Test
 			return 'Question not found';
 		}
 		
-		return self::RenderQuestion( $Question );
+		return self::RenderQuestion( $App, $Question );
 	}
 	
 	public static function HandleQuestionAnswer( $Request, $Response, $Service, $App )
@@ -165,20 +165,17 @@ class Test
 		}
 	}
 	
-	private static function RenderQuestion( $Question )
+	private static function RenderQuestion( $App, $Question )
 	{
-		echo '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">';
-		echo '<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>';
+		$Data = json_decode( $Question->Data, true );
 		
-		echo '<form method="POST" action="/question/' . $Question->QuestionID . '" class="container">';
-
-		// https://docs.learnosity.com/authoring/qti/index
-		// https://docs.learnosity.com/assessment/questions/questiontypes#mcq
-		echo '<h4>' . $Question->Stimulus . '</h4>';
+		return $App->Twig->render( 'questions/question.html', [
+			'question' => $Question,
+			'data' => $Data,
+			'title' => 'Question - ' . \System\Config::$SystemName,
+		] );
 		
 		$questionid = $Question->QuestionID;
-		
-		$Data = json_decode( $Question->Data, true );
 		
 		if( $Question->Type === 'mcq' )
 		{
@@ -186,33 +183,11 @@ class Test
 			{
 				shuffle( $Data[ 'options' ] );
 			}
-			
-			$Checkboxes = isset( $Data[ 'multiple_responses' ] ) && $Data[ 'multiple_responses' ];
-			
-			foreach( $Data[ 'options' ] as $key => $option )
-			{
-				if( $Checkboxes )
-				{
-					echo '<div class="checkbox"><label>';
-					echo '<input type="checkbox" id="question_' . $questionid . '_answer_' . $key . '" name="question_' . $questionid . '_answer[]" value="' . $option[ 'value' ] . '">';
-					echo ' ' . $option[ 'label' ];
-					echo '</label></div>';
-				}
-				else
-				{
-					echo '<div class="radio"><label>';
-					echo '<input type="radio" id="question_' . $questionid . '_answer_' . $key . '" name="question_' . $questionid . '_answer" value="' . $option[ 'value' ] . '">';
-					echo ' ' . $option[ 'label' ];
-					echo '</label></div>';
-				}
-			}
 		}
 		else if( $Question->Type === 'longtext' )
 		{
 			// Maximum number of words that can be entered in the field.
 			$MaxLength = isset( $Data[ 'max_length' ] ) ? (int)$Data[ 'max_length' ] : 10000;
-			
-			echo '<textarea class="form-control" rows="4" name="question_' . $questionid . '_answer"></textarea>';
 		}
 		else if( $Question->Type === 'clozeassociation' )
 		{
@@ -235,7 +210,5 @@ class Test
 			print_r($Data);
 			echo '</pre>';
 		}
-		
-		echo '<button type="submit" class="btn btn-primary">Answer</button></form>';
 	}
 }

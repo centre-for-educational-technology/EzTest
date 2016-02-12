@@ -1,0 +1,22 @@
+{% include "questions/header.html" %}
+
+<div data-role="page" id="page1">
+	<div data-role="header">
+		<h1>Page 1</h1>
+	</div>
+
+	<div role="main" class="ui-content">
+		<div class="stimulus">{{ question.Stimulus | raw }}</div>
+
+		<form method="POST" action="/question/{{ question.QuestionID }}" class="container">
+			{% set template_name = 'questions/types/' ~ question.Type ~ '.html' %}
+			{% include template_name %}
+
+			<button type="submit">Answer</button>
+		</form>
+	</div>
+	
+	{{ dump(data) }}
+</div>
+
+{% include "questions/footer.html" %}

@@ -1,12 +1,27 @@
 <!doctype html>
-	<html class="no-js" lang="en">
+	<html lang="en">
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="x-ua-compatible" content="ie=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>{{title}}</title>
-		<!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-		<link rel="stylesheet" href="assets/css/app.css">
+		<link rel="stylesheet" href="/assets/css/app.css">
 	</head>
 	<body>
+		<nav class="navbar navbar-default">
+			<div class="container">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="/">{{system_name}}</a>
+				</div>
+				
+				<ul class="nav navbar-nav">
+					<li class="active"><a href="/questions">Questions</a></li>
+					<li><a href="/tests">Tests</a></li>
+					<li><a href="/students">Students</a></li>
+					<li><a href="/assigments">Assigments</a></li>
+				</ul>
+			</div>
+		</nav>
+
+		<div class="container">

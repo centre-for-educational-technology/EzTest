@@ -5,7 +5,10 @@ class Login
 {
 	public static function Render( $Request, $Response, $Service, $App )
 	{
-		return $App->Twig->render( 'login.html', [ 'title' => 'Login to ' . \System\Config::$SystemName ] );
+		return $App->Twig->render( 'login.html', [
+			'system_name' => \System\Config::$SystemName,
+			'title' => 'Login to ' . \System\Config::$SystemName,
+		] );
 	}
 	
 	public static function Handle( $Request, $Response, $Service, $App )

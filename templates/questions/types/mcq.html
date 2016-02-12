@@ -1,0 +1,17 @@
+{% for key, option in data.options %}
+	{% if data.multiple_responses == true %}
+		<div class="checkbox">
+			<label>
+				<input type="checkbox" id="question_{{ question.QuestionID }}_answer_{{ key }}" name="question_{{ question.QuestionID }}_answer[]" value="{{ option.value }}">
+				{{ option.label }}
+			</label>
+		</div>
+	{% else %}
+		<div class="radio">
+			<label>
+				<input type="radio" id="question_{{ question.QuestionID }}_answer_{{ key }}" name="question_{{ question.QuestionID }}_answer" value="{{ option.value }}">
+				{{ option.label }}
+			</label>
+		</div>
+	{% endif %}
+{% endfor %}

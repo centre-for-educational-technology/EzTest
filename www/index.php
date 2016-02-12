@@ -17,8 +17,11 @@ $Klein->respond( function( $Request, $Response, $Service, $App )
 		$Loader = new Twig_Loader_Filesystem( __DIR__ . '/../templates' );
 		$Environment = new Twig_Environment( $Loader,
 		[
+			'debug' => true,
 			//'cache' => __DIR__ . '/../templates/cache',
 		] );
+		$Environment->addExtension( new Twig_Extension_Debug() );
+		$Environment->addExtension( new Twig_Extensions_Extension_Array() );
 		
 		return $Environment;
     } );
@@ -32,6 +35,7 @@ $Klein->onError( function( $Klein, $Message, $Type )
 	}
 	
 	echo $Klein->App()->Twig->render( 'error.html', [
+		'system_name' => \System\Config::$SystemName,
 		'title' => 'Error',
 		'type' => $Type,
 		'message' => $Message,
@@ -49,7 +53,7 @@ else
 {
 	$Klein->respond( 'GET', '/logout', [ 'System\Login', 'HandleLogout' ] );
 	
-	$Klein->respond( 'GET', '/', function() { echo 'You are logged in! <a href="/logout">Logout</a>'; } );
+	$Klein->respond( 'GET', '/', [ 'System\Homepage', 'Render' ] );
 }
 
 $Klein->respond( 'GET', '/questions', [ 'System\Test', 'DisplayAllQuestions' ] );
