@@ -169,6 +169,20 @@ class Test
 	{
 		$Data = json_decode( $Question->Data, true );
 		
+		if( $Question->Type === 'clozeassociation' )
+		{
+			$Responses = [ '<option selected="selected" value="-1"></option>' ];
+			
+			foreach( $Data[ 'possible_responses' ] as $Key => $Response )
+			{
+				$Responses[] = '<option value="' . $Key . '">' . $Response . '</option>';
+			}
+			
+			$Responses = '<select id="question_' . $questionid . '_answer" data-inline="true">' . implode( '', $Responses ) . '</select>';
+			
+			$Data[ 'template' ] = str_replace( '{{response}}', $Responses, $Data[ 'template' ] );
+		}
+		
 		return $App->Twig->render( 'questions/question.html', [
 			'question' => $Question,
 			'data' => $Data,
@@ -188,21 +202,6 @@ class Test
 		{
 			// Maximum number of words that can be entered in the field.
 			$MaxLength = isset( $Data[ 'max_length' ] ) ? (int)$Data[ 'max_length' ] : 10000;
-		}
-		else if( $Question->Type === 'clozeassociation' )
-		{
-			$Responses = [ '<option selected="selected" value="-1"></option>' ];
-			
-			foreach( $Data[ 'possible_responses' ] as $Key => $Response )
-			{
-				$Responses[] = '<option value="' . $Key . '">' . $Response . '</option>';
-			}
-			
-			$Responses = '<select id="question_' . $questionid . '_answer">' . implode( '', $Responses ) . '</select>';
-			
-			$Template = str_replace( '{{response}}', $Responses, $Data[ 'template' ] );
-			
-			echo $Template;
 		}
 		else
 		{

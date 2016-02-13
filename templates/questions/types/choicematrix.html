@@ -1,0 +1,35 @@
+<table style="width:100%">
+    <thead>
+        <tr>
+			<th></th>
+            {% for key, option in data.options %}
+            	<th>{{option}}</th>
+			{% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+		{% for key, stem in data.stems %}
+			<tr>
+	            <td><b>{{stem}}</b></td>
+				
+				{% for key, option in data.options %}
+					{% if data.multiple_responses == true %}
+						<td class="checkbox">
+							<label>
+								<input type="checkbox" id="question_{{ question.QuestionID }}_answer_{{ key }}" name="question_{{ question.QuestionID }}_answer[]" value="{{ option.value }}">
+								{{ option.label }}
+							</label>
+						</td>
+					{% else %}
+						<td class="radio">
+							<label>
+								<input type="radio" id="question_{{ question.QuestionID }}_answer_{{ key }}" name="question_{{ question.QuestionID }}_answer" value="{{ option.value }}">
+								{{ option.label }}
+							</label>
+						</td>
+					{% endif %}
+				{% endfor %}
+	        </tr>
+		{% endfor %}
+    </tbody>
+</table>
