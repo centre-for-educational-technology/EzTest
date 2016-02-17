@@ -5,7 +5,7 @@ use LearnosityQti\Converter;
 
 class Questions
 {
-	public static function RenderQuestions( $Request, $Response, $Service, $App )
+	public static function Render( $Request, $Response, $Service, $App )
 	{
 		$Questions = $App->Database->prepare( 'SELECT `QuestionID`, `Type`, `Stimulus` FROM `questions` WHERE `UserID` = :userid ORDER BY `Type`' );
 		$Questions->bindValue( ':userid', $_SESSION[ 'UserID' ], \PDO::PARAM_INT );

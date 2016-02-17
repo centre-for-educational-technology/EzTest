@@ -61,8 +61,12 @@ else
 	
 	$Klein->respond( 'GET', '/', [ 'System\Homepage', 'Render' ] );
 	
-	$Klein->respond( 'GET', '/questions', [ 'System\Questions', 'RenderQuestions' ] );
+	$Klein->respond( 'GET', '/questions', [ 'System\Questions', 'Render' ] );
 	$Klein->respond( 'POST', '/questions/upload', [ 'System\Questions', 'HandleFileUpload' ] );
+	
+	$Klein->respond( 'GET', '/tests', [ 'System\Tests', 'Render' ] );
+	$Klein->respond( 'GET', '/students', [ 'System\Students', 'Render' ] );
+	$Klein->respond( 'GET', '/assignments', [ 'System\Assignments', 'Render' ] );
 }
 
 $Klein->respond( 'GET', '/question/[i:ID]', [ 'System\Test', 'DisplayQuestion' ] );
