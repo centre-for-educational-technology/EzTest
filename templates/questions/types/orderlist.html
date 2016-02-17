@@ -1,0 +1,9 @@
+<div style="font-size:20px">
+	{{ data.template | raw }}
+	
+	<ol>
+		{% for answer in data.list %}
+			<li>{{answer}}</li>
+		{% endfor %}
+	</ol>
+</div>
