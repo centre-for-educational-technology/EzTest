@@ -116,9 +116,30 @@ class Test
 				$Responses[] = '<option value="' . $Key . '">' . $Response . '</option>';
 			}
 			
-			$Responses = '<select id="question_' . $questionid . '_answer" data-inline="true">' . implode( '', $Responses ) . '</select>';
+			$Responses = '<select id="question_' . $Question->QuestionID . '_answer" data-inline="true">' . implode( '', $Responses ) . '</select>';
 			
 			$Data[ 'template' ] = str_replace( '{{response}}', $Responses, $Data[ 'template' ] );
+		}
+		else if( $Question->Type === 'clozedropdown' )
+		{
+			foreach( $Data[ 'possible_responses' ] as $PossibleResponses )
+			{
+				$Responses = [ '<option selected="selected" value="-1"></option>' ];
+				
+				foreach( $PossibleResponses as $Key => $Response )
+				{
+					$Responses[] = '<option value="' . $Key . '">' . $Response . '</option>';
+				}
+				
+				$Responses = '<select id="question_' . $Question->QuestionID . '_answer" data-inline="true">' . implode( '', $Responses ) . '</select>';
+				
+				$Position = strpos( $Data[ 'template' ], '{{response}}' );
+				
+				if( $Position !== false )
+				{
+					$Data[ 'template' ] = substr_replace( $Data[ 'template' ], $Responses, $Position, strlen( '{{response}}' ) );
+				}
+			}
 		}
 		
 		return $App->Twig->render( 'questions/question.html', [
