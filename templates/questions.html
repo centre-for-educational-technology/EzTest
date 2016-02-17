@@ -1,0 +1,14 @@
+{% include "header.html" %}
+
+<ul>
+	{% for question in questions %}
+		<li>
+			<a href="/question/{{question.QuestionID}}">
+				{{question.QuestionID}}: <b> type {{question.Type}}</b>
+			</a>
+			<div class="well">{{question.Stimulus | raw}}</div>
+		</li>
+	{% endfor %}
+</ul>
+
+{% include "footer.html" %}

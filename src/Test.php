@@ -103,68 +103,6 @@ class Test
 		echo '</pre>';
 	}
 	
-	public static function DisplayAllQuestions( $Request, $Response, $Service, $App )
-	{
-		echo '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">';
-		
-		$Questions = $App->Database->query( 'SELECT `QuestionID`, `Type`, `Stimulus` FROM `questions` ORDER BY `Type`' )->fetchAll();
-		
-		echo '<ul>';
-		
-		foreach( $Questions as $Question )
-		{
-			echo '<li><a href="/question/' . $Question->QuestionID . '">Question #' . $Question->QuestionID. ': <b> type ' . $Question->Type . '</b></a><div class="well">' . $Question->Stimulus . '</div></li>';
-		}
-		
-		echo '</ul>';
-	}
-	
-	public static function HandleRender( $Request, $Response, $Service, $App )
-	{
-		$files = glob('../qtifiles/interactions/*.xml');
-		
-		$questions = [];
-		
-		$NewQuestion = $App->Database->prepare(
-			'INSERT INTO `questions` (`Type`, `Stimulus`, `Data`, `Hash`) ' .
-			'VALUES (:type, :stimulus, :data, :hash)'
-		);
-		
-		foreach( $files as $file )
-		{
-			try
-			{
-				$xmlString = file_get_contents( $file );
-				$converted = Converter::convertQtiItemToLearnosity($xmlString);
-				
-				$questions = array_merge( $questions, $converted[ 1 ] );
-				
-				foreach( $converted[ 1 ] as $Data )
-				{
-					$Data = $Data[ 'data' ];
-					$Type = $Data[ 'type' ];
-					$Stimulus = isset( $Data[ 'stimulus' ] ) ? $Data[ 'stimulus' ] : '';
-					
-					unset( $Data[ 'stimulus' ], $Data[ 'type' ] );
-					
-					$Data = json_encode( $Data );
-					
-					$NewQuestion->bindValue( ':type', $Type );
-					$NewQuestion->bindValue( ':stimulus', $Stimulus );
-					$NewQuestion->bindValue( ':data', $Data );
-					$NewQuestion->bindValue( ':hash', md5( $Data ) );
-					$NewQuestion->execute();
-					
-					unset( $Data, $Type, $Stimulus );
-				}
-			}
-			catch( \Exception $e )
-			{
-				echo 'Failed to convert ' . $file . PHP_EOL;
-			}
-		}
-	}
-	
 	private static function RenderQuestion( $App, $Question )
 	{
 		$Data = json_decode( $Question->Data, true );

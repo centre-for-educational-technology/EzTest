@@ -47,19 +47,25 @@ if( !isset( $_SESSION[ 'LoggedIn' ] ) )
 	$Klein->respond( 'GET', '/login', [ 'System\Login', 'Render' ] );
 	$Klein->respond( 'POST', '/login', [ 'System\Login', 'Handle' ] );
 	
-	$Klein->respond( 'GET', '/', function() { echo '<a href="/login">Login</a>'; } );
+	$Klein->onHttpError( function( $Code, $Router )
+	{
+		if( $Code === 404 )
+		{
+			$Router->response()->redirect( '/login' );
+		}
+	}) ;
 }
 else
 {
 	$Klein->respond( 'GET', '/logout', [ 'System\Login', 'HandleLogout' ] );
 	
 	$Klein->respond( 'GET', '/', [ 'System\Homepage', 'Render' ] );
+	
+	$Klein->respond( 'GET', '/questions', [ 'System\Questions', 'RenderQuestions' ] );
+	$Klein->respond( 'POST', '/questions/upload', [ 'System\Questions', 'HandleFileUpload' ] );
 }
 
-$Klein->respond( 'GET', '/questions', [ 'System\Test', 'DisplayAllQuestions' ] );
 $Klein->respond( 'GET', '/question/[i:ID]', [ 'System\Test', 'DisplayQuestion' ] );
 $Klein->respond( 'POST', '/question/[i:ID]', [ 'System\Test', 'HandleQuestionAnswer' ] );
-
-$Klein->respond( 'GET', '/test', [ 'System\Test', 'HandleRender' ] );
 
 $Klein->dispatch();
