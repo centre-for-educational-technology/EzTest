@@ -3,7 +3,7 @@
         "twig/twig": "1.18.2",
         "twig/extensions": "1.2.0",
         "klein/klein": "~2.0",
-        "learnosity/learnosity-qti": "^0.5.0",
+        "learnosity/learnosity-qti": "~0.6.0",
         "phpmailer/phpmailer": "~5.2"
     },
     "autoload": {
