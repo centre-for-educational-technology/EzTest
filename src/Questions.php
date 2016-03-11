@@ -7,16 +7,43 @@ class Questions
 {
 	public static function Render( $Request, $Response, $Service, $App )
 	{
-		$Questions = $App->Database->prepare( 'SELECT `QuestionID`, `Type`, `Stimulus` FROM `questions` WHERE `UserID` = :userid ORDER BY `Type`' );
+		$Questions = $App->Database->prepare( 'SELECT `QuestionID`, `Tags`, `Type`, `Stimulus` FROM `questions` WHERE `UserID` = :userid ORDER BY `Date` DESC' );
 		$Questions->bindValue( ':userid', $_SESSION[ 'UserID' ], \PDO::PARAM_INT );
 		$Questions->execute();
 		$Questions = $Questions->fetchAll();
+		
+		$Tags = [];
+		
+		foreach( $Questions as &$Question )
+		{
+			if( empty( $Question->Tags ) )
+			{
+				continue;
+			}
+			
+			$Question->Tags = explode( ',', $Question->Tags );
+			
+			foreach( $Question->Tags as $Tag )
+			{
+				if( isset( $Tags[ $Tag ] ) )
+				{
+					$Tags[ $Tag ]++;
+				}
+				else
+				{
+					$Tags[ $Tag ] = 1;
+				}
+			}
+		}
+		
+		arsort( $Tags );
 		
 		return $App->Twig->render( 'questions.html', [
 			'system_name' => \System\Config::$SystemName,
 			'title' => 'Questions - ' . \System\Config::$SystemName,
 			'tab' => 'questions',
 			'questions' => $Questions,
+			'tags' => $Tags,
 		] );
 	}
 	
