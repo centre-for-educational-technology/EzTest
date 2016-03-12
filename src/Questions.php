@@ -39,8 +39,7 @@ class Questions
 		arsort( $Tags );
 		
 		return $App->Twig->render( 'questions.html', [
-			'system_name' => \System\Config::$SystemName,
-			'title' => 'Questions - ' . \System\Config::$SystemName,
+			'title' => 'Questions Bank',
 			'tab' => 'questions',
 			'questions' => $Questions,
 			'tags' => $Tags,
@@ -49,32 +48,33 @@ class Questions
 	
 	public static function HandleFileUpload( $Request, $Response, $Service, $App )
 	{
-		echo '<pre>'; var_dump($_FILES);
+		if( empty( $_FILES[ 'questions' ][ 'tmp_name' ] ) )
+		{
+			throw new \Exception( 'No files uploaded' );
+		}
 		
-		$files = $_FILES[ 'files' ];
-		
-		$questions = [];
+		$Files = $_FILES[ 'questions' ][ 'tmp_name' ];
+		$Tags = isset( $_POST[ 'tags' ] ) ? $_POST[ 'tags' ] : '';
 		
 		$NewQuestion = $App->Database->prepare(
-			'INSERT INTO `questions` (`Type`, `Stimulus`, `Data`, `Hash`, `UserID`) ' .
-			'VALUES (:type, :stimulus, :data, :hash, :userid)'
+			'INSERT INTO `questions` (`Type`, `Tags`, `Stimulus`, `Data`, `Hash`, `UserID`) ' .
+			'VALUES (:type, :tags, :stimulus, :data, :hash, :userid) ' .
+			'ON DUPLICATE KEY UPDATE `Date` = NOW()'
 		);
 		
-		foreach( $files as $file )
+		foreach( $Files as $file )
 		{
+			echo 'Converting ' . $file . '<ol>';
+			
 			try
 			{
-				var_dump($file);
-				
 				if( !is_uploaded_file( $file ) )
 				{
 					throw new \Exception( 'Not a file?' );
 				}
-				continue;
-				$xmlString = file_get_contents( $file );
-				$converted = Converter::convertQtiItemToLearnosity($xmlString);
 				
-				$questions = array_merge( $questions, $converted[ 1 ] );
+				$xmlString = file_get_contents( $file );
+				$converted = Converter::convertQtiItemToLearnosity( $xmlString );
 				
 				foreach( $converted[ 1 ] as $Data )
 				{
@@ -82,24 +82,37 @@ class Questions
 					$Type = $Data[ 'type' ];
 					$Stimulus = isset( $Data[ 'stimulus' ] ) ? $Data[ 'stimulus' ] : '';
 					
+					// We calculate hash of full data object before removing stimulus and type
+					$Hash = md5( json_encode( $Data ) );
+					
+					// We store stimulus and type in separate columns
 					unset( $Data[ 'stimulus' ], $Data[ 'type' ] );
 					
 					$Data = json_encode( $Data );
 					
+					$NewQuestion->bindValue( ':tags', $Tags );
 					$NewQuestion->bindValue( ':type', $Type );
 					$NewQuestion->bindValue( ':stimulus', $Stimulus );
 					$NewQuestion->bindValue( ':data', $Data );
-					$NewQuestion->bindValue( ':hash', md5( $Data ) );
+					$NewQuestion->bindValue( ':hash', $Hash );
 					$NewQuestion->bindValue( ':userid', $_SESSION[ 'UserID' ], \PDO::PARAM_INT );
 					$NewQuestion->execute();
 					
 					unset( $Data, $Type, $Stimulus );
 				}
+				
+				foreach( $converted[ 2 ] as $Data )
+				{
+					echo '<li>' . htmlentities( $Data ) . '</li>';
+				}
 			}
 			catch( \Exception $e )
 			{
-				echo 'Failed to convert ' . $file . PHP_EOL;
+				echo '<li>Failed to convert ' . $file . ' - ' . $e->getMessage() . '</li>';
 			}
+			
+			echo '</ol><br>';
+			echo '<a href="/questions">Go back</a>';
 		}
 	}
 }

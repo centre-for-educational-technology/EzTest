@@ -23,6 +23,15 @@ $Klein->respond( function( $Request, $Response, $Service, $App )
 		$Environment->addExtension( new Twig_Extension_Debug() );
 		$Environment->addExtension( new Twig_Extensions_Extension_Array() );
 		
+		$Environment->addGlobal( 'system_name', \System\Config::$SystemName );
+		
+		if( isset( $_SESSION[ 'LoggedIn' ] ) )
+		{
+			$Environment->addGlobal( 'logged_in', true );
+			$Environment->addGlobal( 'logged_in_userid', $_SESSION[ 'UserID' ] );
+			$Environment->addGlobal( 'logged_in_name', $_SESSION[ 'Name' ] );
+		}
+		
 		return $Environment;
     } );
 } );
@@ -35,7 +44,6 @@ $Klein->onError( function( $Klein, $Message, $Type )
 	}
 	
 	echo $Klein->App()->Twig->render( 'error.html', [
-		'system_name' => \System\Config::$SystemName,
 		'title' => 'Error',
 		'type' => $Type,
 		'message' => $Message,
@@ -53,18 +61,27 @@ if( !isset( $_SESSION[ 'LoggedIn' ] ) )
 		{
 			$Router->response()->redirect( '/login' );
 		}
-	}) ;
+	} );
 }
 else
 {
 	$Klein->respond( 'GET', '/logout', [ 'System\Login', 'HandleLogout' ] );
 	
-	$Klein->respond( 'GET', '/', [ 'System\Homepage', 'Render' ] );
+	$Klein->respond( 'GET', '/', function( $Request, $Response, $Service, $App )
+	{
+		$Response->redirect( '/questions' );
+	} );
 	
 	$Klein->respond( 'GET', '/questions', [ 'System\Questions', 'Render' ] );
 	$Klein->respond( 'POST', '/questions/upload', [ 'System\Questions', 'HandleFileUpload' ] );
 	
 	$Klein->respond( 'GET', '/tests', [ 'System\Tests', 'Render' ] );
+	$Klein->respond( 'GET', '/tests/new', [ 'System\Tests', 'RenderNewTest' ] );
+	$Klein->respond( 'POST', '/tests/new', [ 'System\Tests', 'RenderNewTest' ] );
+	$Klein->respond( 'GET', '/tests/edit/[i:ID]', [ 'System\Tests', 'RenderNewTest' ] );
+	$Klein->respond( 'POST', '/tests/edit/[i:ID]', [ 'System\Tests', 'RenderNewTest' ] );
+	
+	$Klein->respond( 'GET', '/groups', [ 'System\Groups', 'Render' ] );
 	$Klein->respond( 'GET', '/students', [ 'System\Students', 'Render' ] );
 	$Klein->respond( 'GET', '/assignments', [ 'System\Assignments', 'Render' ] );
 }

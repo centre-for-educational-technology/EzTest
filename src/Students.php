@@ -6,8 +6,7 @@ class Students
 	public static function Render( $Request, $Response, $Service, $App )
 	{
 		return $App->Twig->render( 'students.html', [
-			'system_name' => \System\Config::$SystemName,
-			'title' => 'Students - ' . \System\Config::$SystemName,
+			'title' => 'Students',
 			'tab' => 'students',
 		] );
 	}

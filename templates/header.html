@@ -4,27 +4,53 @@
 		<meta charset="utf-8">
 		<meta http-equiv="x-ua-compatible" content="ie=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>{{title}}</title>
+		<title>{{title}} · {{system_name}}</title>
+		<link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700&subset=latin,cyrillic-ext,latin-ext' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+		<link href='https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic&subset=latin,cyrillic-ext,latin-ext' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" href="/assets/css/wtf-forms.css">
-		<link rel="stylesheet" href="/assets/css/app.css">
-		
+		<link rel="stylesheet" href="/assets/css/app.css?v={{ "now"|date('c') }}">
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.1/jquery.min.js" crossorigin="anonymous"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" crossorigin="anonymous"></script>
 	</head>
 	<body>
+
+		<div class='holder'>
+			{% if logged_in %}
+				<div class='container topsik'>
+					<div class='row'>
+						<div class='col-xs-8 col-sm-6 text-left'>
+							Hello, you are logged in as <b>{{logged_in_name}}</b>
+						</div>
+						<div class='col-xs-4 col-sm-6 text-right logout'>
+							<a href='/logout'><i class="fa fa-sign-out"></i>Logout</a>	
+						</div>
+					</div>
+				</div>
+			{% endif %}
+		</div>
 		<nav class="navbar navbar-default">
 			<div class="container">
 				<div class="navbar-header">
-					<a class="navbar-brand" href="/">{{system_name}}</a>
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					
+					<img src="/assets/img/eztest.png" alt="{{system_name}}">
 				</div>
 				
-				<ul class="nav navbar-nav">
-					<li{% if tab == 'questions' %} class="active"{% endif %}><a href="/questions">Questions</a></li>
-					<li{% if tab == 'tests' %} class="active"{% endif %}><a href="/tests">Tests</a></li>
-					<li{% if tab == 'students' %} class="active"{% endif %}><a href="/students">Students</a></li>
-					<li{% if tab == 'assignments' %} class="active"{% endif %}><a href="/assignments">Assignments</a></li>
-				</ul>
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+					<ul class="nav navbar-nav">
+						<li{% if tab == 'questions' %} class="active"{% endif %}><a href="/questions">Questions</a></li>
+						<li{% if tab == 'tests' %} class="active"{% endif %}><a href="/tests">Tests</a></li>
+						<li{% if tab == 'students' %} class="active"{% endif %}><a href="/students">Students</a></li>
+						<li{% if tab == 'groups' %} class="active"{% endif %}><a href="/groups">Groups</a></li>
+						<li{% if tab == 'assignments' %} class="active"{% endif %}><a href="/assignments">Assignments</a></li>
+					</ul>
+				</div>
 			</div>
 		</nav>
