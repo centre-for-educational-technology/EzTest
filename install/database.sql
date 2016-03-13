@@ -58,8 +58,8 @@ CREATE TABLE IF NOT EXISTS `questions` (
 -- Dumping structure for table edu_testing.tests
 CREATE TABLE IF NOT EXISTS `tests` (
   `TestID` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `Tags` varchar(100) CHARACTER SET latin1 DEFAULT '',
-  `Name` varchar(100) CHARACTER SET latin1 DEFAULT '',
+  `Tags` varchar(100) DEFAULT '',
+  `Name` varchar(100) DEFAULT '',
   `UserID` int(11) unsigned DEFAULT NULL,
   `Date` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`TestID`),
