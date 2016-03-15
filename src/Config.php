@@ -4,7 +4,7 @@ namespace System;
 class Config
 {
 	// System name/title
-	public static $SystemName = 'QTI System Name';
+	public static $SystemName = 'EzTest';
 	
 	//
 	// MySQL

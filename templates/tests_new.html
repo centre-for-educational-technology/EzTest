@@ -10,27 +10,29 @@
 		<div class="container">
 			<div class="pull-right">
 				{% if test.TestID %}
-					<a href="/assignments/new?id={{test.TestID}}" class="btn goodbutton"><i class="fa fa-floppy-o" style='margin-right:7px;'></i>Save</a>
+					<button type="submit" name="save" value="return" class="btn goodbutton"><i class="fa fa-floppy-o" style='margin-right:7px;'></i>Save</button>
+					<button type="submit" name="save" value="assign" class="btn createnew"><i class="fa fa-arrow-circle-o-right" ></i>Save & Assign</button>
+				{% else %}
+					<button type="submit" name="save" value="return" class="btn createnew"><i class="fa fa-floppy-o" style='margin-right:7px;'></i>Create Test</button>
 				{% endif %}
-				<button type="submit" name="save" value="yes" class="btn createnew"><i class="fa fa-arrow-circle-o-right" ></i>Save & Assign</button>
 			</div>
 			
-			<button type="submit" name="save" value="add_questions" class="goodbutton" id="js-add-questions"><i class="fa fa-plus-square-o"></i>Add Questions</button>
+			<button type="submit" name="save" value="add_questions" class="goodbutton js-add-questions"><i class="fa fa-plus-square-o"></i>Add Questions</button>
 		</div>
 	</div>
 </div>
 
-<div class='container' style='padding-top:20px;'>
+<div class='container betterlabel' id="js-affix-padding">
 	<div class='row'>
 		<div class='col-xs-12'>
 			<h2>{{title}}</h2>
 			
-			<div class="form-group">
+			<div class="form-group" style='margin-bottom:30px;'>
 				<label for="js-input-name">Name</label>
 				<p class="help-block">Enter your test name</p>
 				<input autofocus required type="text" class="form-control" id="js-input-name" placeholder="History 10a" name="name" value="{{test.Name}}">
 			</div>
-			<div class="form-group">
+			<div class="form-group" style='margin-bottom:30px;'>
 				<label for="js-upload-tags">Tags</label>
 				<p class="help-block">Please enter your test tags using commas for separation</p>
 				<input type="text" placeholder="History, WWII, Tanks" class="input" name="tags" id="js-upload-tags" value="{{test.Tags}}">
@@ -45,29 +47,37 @@
 	</div>
 </div>
 
-<div class="container">
+<div class="container betterlabel">
 	<label for="js-questions-table">Test Questions</label>
 	<p class="help-block">You can move and order your questions using <i class="fa fa-arrows-v"></i> drag and drop</p>
 	
-	<div id="js-questions-table" class='dragon'>
-	{% for question in questions %}
-		<div class="row js-question">
-			<input type="hidden" name="questions[]" value="{{question.QuestionID}}">
-			<div class='col-xs-1 nopp'>
-				<span class="js-question-number">{{ loop.index }}</span>
+	<div class='dragon'>
+		<div id="js-questions-table">
+		{% for question in questions %}
+			<div class="row js-question">
+				<input type="hidden" name="questions[]" value="{{question.QuestionID}}">
+				<div class='col-xs-1 nopp'>
+					<span class="js-question-number">{{ loop.index }}</span>
+				</div>
+				<div class='col-xs-10'>
+					{{question.Stimulus | raw}}
+				</div>
+				<div class='col-xs-1 nopp text-right'>
+					<i class="fa fa-times js-delete-question"></i>
+				</div>
 			</div>
-			<div class='col-xs-10'>
-				{{question.Stimulus | raw}}
+		{% endfor %}
+		</div>
+		{% if questions is empty %}
+			<div class="alert alert-warning text-center">
+				This test has no questions. Click <b>Add questions</b> button to add questions to this test.
 			</div>
-			<div class='col-xs-1 nopp text-right'>
-				<i class="fa fa-times js-delete-question"></i>
+		{% endif %}
+		<div class='row'>
+			<div class='col-xs-12 text-center'>
+				<button type="submit" name="save" value="add_questions" class="goodbutton blag js-add-questions"><i class="fa fa-plus-square-o"></i>Add Questions</button>
 			</div>
 		</div>
-	{% else %}
-		<div class="row js-question">
-			This test has no questions. Click <b>Add questions</b> button to add questions to this test.
-		</div>
-	{% endfor %}
 	</div>
 </div>
 
@@ -83,6 +93,12 @@
 		{
 			top: $('#js-affix').offset().top
 		}
+	}).on('affix.bs.affix', function()
+	{
+		$('#js-affix-padding').css('padding-top', 20 + $(this).height());
+	}).on("affix-top.bs.affix", function()
+	{
+		$('#js-affix-padding').css('padding-top', '');
 	});
 	
 	dragula([document.getElementById('js-questions-table')],
@@ -123,9 +139,13 @@
 		return false;
 	});
 	
-	$('#js-add-questions').on('click', function()
+	$('.js-add-questions').on('click', function()
 	{
-		$('#js-input-name').removeAttr('required');
+		if(!$('#js-input-name').val().length)
+		{
+			$('#js-input-name').val('Untitled Test');
+		}
+		
 		$('#js-test-form').attr('action', '/questions{% if test.TestID %}/add/{{test.TestID}}{% endif %}');
 	});
 }());

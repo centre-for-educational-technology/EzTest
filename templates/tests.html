@@ -6,7 +6,7 @@
 	<div class="top-buttons">
 		<div class="container">
 			<div class="pull-right">
-				<a href="/tests/new" class="btn createnew" id="js-create-test"><i class="fa fa-plus-circle"></i> Create Test</a>
+				<a href="/tests/new" class="btn createnew" id="js-create-test"><i class="fa fa-plus-circle"></i>Create Test</a>
 			</div>
 			
 			<button type="button" class="goodbutton" id="js-show-tags"><i class="fa fa-tags"></i> <span class="btn-text" data-other="Hide Tests Tags">Show Tests Tags</span></button>
@@ -26,7 +26,7 @@
 	</div>
 </div>
 
-<div class="container container-main">
+<div class="container" id="js-affix-padding">
 	<h2>{{title}}</h2>
 <table id="js-questions-table" class="table table-striped table-bordered">
 	<thead>
@@ -42,7 +42,7 @@
 		{% for test in tests %}
 			<tr class="js-question">
 				<td class='text-center a_assign'>
-					<a href='#'><i class="fa fa-arrow-circle-o-right"></i></a>
+					<a href="/assignments/new/{{test.TestID}}"><i class="fa fa-arrow-circle-o-right"></i></a>
 				</td>
 				<td>
 					{{test.Name}}
@@ -82,6 +82,12 @@
 		{
 			top: $('#js-affix').offset().top
 		}
+	}).on('affix.bs.affix', function()
+	{
+		$('#js-affix-padding').css('padding-top', 20 + $(this).height());
+	}).on("affix-top.bs.affix", function()
+	{
+		$('#js-affix-padding').css('padding-top', '');
 	});
 	
 	var table = $('#js-questions-table').DataTable({

@@ -69,7 +69,6 @@ class Tests
 			$Test = new \stdClass();
 		}
 		
-		$IsSaving = isset( $_POST[ 'save' ] ) && $_POST[ 'save' ] === 'yes';
 		$Name = filter_input( INPUT_POST, 'name', FILTER_SANITIZE_STRING );
 		$Tags = filter_input( INPUT_POST, 'tags', FILTER_SANITIZE_STRING );
 		
@@ -112,7 +111,7 @@ class Tests
 			} ); 
 		}
 		
-		if( $IsSaving )
+		if( isset( $_POST[ 'save' ] ) )
 		{
 			if( $IsNewTest )
 			{
@@ -160,6 +159,11 @@ class Tests
 			if( $IsNewTest )
 			{
 				$Response->redirect( '/tests/edit/' . $TestID );
+				return;
+			}
+			else if( $_POST[ 'save' ] === 'assign' )
+			{
+				$Response->redirect( '/assignments/new/' . $TestID );
 				return;
 			}
 		}

@@ -12,7 +12,7 @@
 	</div>
 </div>
 
-<div class="container container-main">
+<div class="container" id="js-affix-padding">
 	<h2>{{title}}</h2>
 
 <table id="js-groups-table" class="table table-striped table-bordered">
@@ -76,6 +76,12 @@
 		{
 			top: $('#js-affix').offset().top
 		}
+	}).on('affix.bs.affix', function()
+	{
+		$('#js-affix-padding').css('padding-top', 20 + $(this).height());
+	}).on("affix-top.bs.affix", function()
+	{
+		$('#js-affix-padding').css('padding-top', '');
 	});
 	
 	var table = $('#js-groups-table').DataTable({

@@ -10,7 +10,7 @@ USE `edu_testing`;
 
 -- Dumping structure for table edu_testing.groups
 CREATE TABLE IF NOT EXISTS `groups` (
-  `GroupID` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `GroupID` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `GroupName` varchar(64) NOT NULL,
   `UserID` int(11) unsigned NOT NULL,
   `Date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `questions` (
   `Stimulus` mediumtext NOT NULL,
   `Data` mediumtext NOT NULL,
   `Hash` char(32) NOT NULL,
-  `UserID` int(10) unsigned NOT NULL,
+  `UserID` int(11) unsigned NOT NULL,
   `Date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`QuestionID`),
   UNIQUE KEY `Hash` (`Hash`),
@@ -74,8 +74,10 @@ CREATE TABLE IF NOT EXISTS `tests` (
 CREATE TABLE IF NOT EXISTS `tests_questions` (
   `TestID` int(11) unsigned DEFAULT NULL,
   `QuestionID` int(11) unsigned DEFAULT NULL,
+  `Order` int(11) unsigned DEFAULT NULL,
   KEY `FK_tests_questions_questions` (`QuestionID`),
   KEY `FK_tests_questions_tests` (`TestID`),
+  KEY `Order` (`Order`),
   CONSTRAINT `FK_tests_questions_questions` FOREIGN KEY (`QuestionID`) REFERENCES `questions` (`QuestionID`),
   CONSTRAINT `FK_tests_questions_tests` FOREIGN KEY (`TestID`) REFERENCES `tests` (`TestID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -85,7 +87,7 @@ CREATE TABLE IF NOT EXISTS `tests_questions` (
 
 -- Dumping structure for table edu_testing.users
 CREATE TABLE IF NOT EXISTS `users` (
-  `UserID` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `UserID` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `Email` varchar(64) NOT NULL,
   `Name` varchar(64) DEFAULT NULL,
   `Password` varchar(255) NOT NULL,
