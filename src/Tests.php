@@ -48,7 +48,6 @@ class Tests
 	{
 		$TestID = $Request->ID;
 		$IsNewTest = $TestID < 1;
-		$Test = [];
 		
 		if( !$IsNewTest )
 		{
@@ -64,6 +63,10 @@ class Tests
 				
 				return 'Test not found';
 			}
+		}
+		else
+		{
+			$Test = new \stdClass();
 		}
 		
 		$IsSaving = isset( $_POST[ 'save' ] ) && $_POST[ 'save' ] === 'yes';
@@ -84,7 +87,7 @@ class Tests
 		
 		if( !$IsNewTest && empty( $Questions ) )
 		{
-			$QuestionsGet = $App->Database->prepare( 'SELECT `QuestionID` FROM `tests_questions` WHERE `TestID` = :id' );
+			$QuestionsGet = $App->Database->prepare( 'SELECT `QuestionID` FROM `tests_questions` WHERE `TestID` = :id ORDER BY `Order` ASC' );
 			$QuestionsGet->bindValue( ':id', $TestID, \PDO::PARAM_INT );
 			$QuestionsGet->execute();
 			
@@ -94,12 +97,19 @@ class Tests
 			}
 		}
 		
+		$QuestionOrder = array_flip( $Questions );
+		
 		if( !empty( $Questions ) )
 		{
-			$Questions = $App->Database->prepare( 'SELECT `QuestionID`, `Type`, `Stimulus` FROM `questions` WHERE `UserID` = :userid AND `QuestionID` IN (' . implode( ', ', $Questions ). ')' );
+			$Questions = $App->Database->prepare( 'SELECT `QuestionID`, `Type`, `Stimulus` FROM `questions` WHERE `UserID` = :userid AND `QuestionID` IN (' . implode( ', ', $Questions ) . ')' );
 			$Questions->bindValue( ':userid', $_SESSION[ 'UserID' ], \PDO::PARAM_INT );
 			$Questions->execute();
 			$Questions = $Questions->fetchAll();
+			
+			usort( $Questions, function( $a, $b ) use( $QuestionOrder )
+			{
+				return $QuestionOrder[ $a->QuestionID ] - $QuestionOrder[ $b->QuestionID ];
+			} ); 
 		}
 		
 		if( $IsSaving )
@@ -130,18 +140,18 @@ class Tests
 				$TestID = $Test->TestID;
 			}
 			
-			// TODO: insert questions
 			if( !empty( $Questions ) )
 			{
 				$InsertQuestion = $App->Database->prepare( 'DELETE FROM `tests_questions` WHERE `TestID` = :testid' );
 				$InsertQuestion->bindValue( ':testid', $TestID, \PDO::PARAM_INT );
 				$InsertQuestion->execute();
 				
-				$InsertQuestion = $App->Database->prepare( 'INSERT INTO `tests_questions` (`TestID`, `QuestionID`) VALUES(:testid, :questionid)' );
+				$InsertQuestion = $App->Database->prepare( 'INSERT INTO `tests_questions` (`TestID`, `QuestionID`, `Order`) VALUES(:testid, :questionid, :order)' );
 				$InsertQuestion->bindValue( ':testid', $TestID, \PDO::PARAM_INT );
 				
 				foreach( $Questions as $Question )
 				{
+					$InsertQuestion->bindValue( ':order', $QuestionOrder[ $Question->QuestionID ], \PDO::PARAM_INT );
 					$InsertQuestion->bindValue( ':questionid', $Question->QuestionID, \PDO::PARAM_INT );
 					$InsertQuestion->execute();
 				}
@@ -152,8 +162,15 @@ class Tests
 				$Response->redirect( '/tests/edit/' . $TestID );
 				return;
 			}
-			
+		}
+		
+		if( !empty( $Name ) )
+		{
 			$Test->Name = $Name;
+		}
+		
+		if( !empty( $Tags ) )
+		{
 			$Test->Tags = $Tags;
 		}
 		

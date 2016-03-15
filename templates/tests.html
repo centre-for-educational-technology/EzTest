@@ -10,6 +10,7 @@
 			</div>
 			
 			<button type="button" class="goodbutton" id="js-show-tags"><i class="fa fa-tags"></i> <span class="btn-text" data-other="Hide Tests Tags">Show Tests Tags</span></button>
+			<button type="button" class="goodbutton goodbutton-clear" id="js-clear-search"><i class="fa fa-refresh"></i>Clear Search</button>
 		</div>
 	</div>
 	
@@ -59,8 +60,6 @@
 
 </div><!-- container -->
 
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-tagsinput/1.3.6/jquery.tagsinput.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.11/js/jquery.dataTables.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.11/js/dataTables.bootstrap.min.js"></script>
 <script>
@@ -113,6 +112,13 @@
 		return false;
 	});
 	
+	$('#js-clear-search').on('click', function()
+	{
+		table.search('').draw();
+		
+		return false;
+	});
+	
 	table.on('click', '.js-delete-question', function()
 	{
 		table
@@ -126,24 +132,6 @@
 	table.on('change', '.js-question-select', function()
 	{
 		$(this).closest('.js-question').toggleClass('question-selected', $(this).is(':checked'));
-		
-		return false;
-	});
-	
-	var uploadTagsInput = $('#js-upload-tags').tagsInput({
-		width: 'auto'
-	});
-	
-	$('.js-upload-tag').on('click', function()
-	{
-		var tag = $(this).data('tag');
-		
-		if(!uploadTagsInput.tagExist(tag))
-		{
-			uploadTagsInput.addTag(tag);
-		}
-		
-		$(this).remove();
 		
 		return false;
 	});

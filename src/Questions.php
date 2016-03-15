@@ -7,6 +7,18 @@ class Questions
 {
 	public static function Render( $Request, $Response, $Service, $App )
 	{
+		$SelectedQuestions = [];
+		
+		if( !empty( $_POST[ 'questions' ] ) && is_array( $_POST[ 'questions' ] ) )
+		{
+			$Questions = $_POST[ 'questions' ];
+			
+			foreach( $Questions as $Question )
+			{
+				$SelectedQuestions[ (int)$Question ] = true;
+			}
+		}
+		
 		$Questions = $App->Database->prepare( 'SELECT `QuestionID`, `Tags`, `Type`, `Stimulus` FROM `questions` WHERE `UserID` = :userid ORDER BY `Date` DESC' );
 		$Questions->bindValue( ':userid', $_SESSION[ 'UserID' ], \PDO::PARAM_INT );
 		$Questions->execute();
@@ -43,6 +55,11 @@ class Questions
 			'tab' => 'questions',
 			'questions' => $Questions,
 			'tags' => $Tags,
+			
+			'testid' => $Request->TestID,
+			'selected_questions' => $SelectedQuestions,
+			'selected_name' => filter_input( INPUT_POST, 'name', FILTER_SANITIZE_STRING ),
+			'selected_tags' => filter_input( INPUT_POST, 'tags', FILTER_SANITIZE_STRING ),
 		] );
 	}
 	

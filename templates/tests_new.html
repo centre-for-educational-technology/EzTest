@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-tagsinput/1.3.6/jquery.tagsinput.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.6.8/dragula.css">
 
-<form action="/tests/{% if test.TestID %}edit/{{test.TestID}}{% else %}new{% endif %}" method="POST">
+<form action="/tests/{% if test.TestID %}edit/{{test.TestID}}{% else %}new{% endif %}" enctype="multipart/form-data" method="POST" id="js-test-form">
 
 <div id="js-affix">
 	<div class="top-buttons">
@@ -14,6 +14,8 @@
 				{% endif %}
 				<button type="submit" name="save" value="yes" class="btn createnew"><i class="fa fa-plus-circle"></i> Save Test</button>
 			</div>
+			
+			<button type="submit" name="save" value="add_questions" class="createnew" id="js-add-questions"><i class="fa fa-plus-circle"></i>Add Questions</button>
 		</div>
 	</div>
 </div>
@@ -24,13 +26,13 @@
 			<h2>{{title}}</h2>
 			
 			<div class="form-group">
-				<label for="exampleInputEmail1">Name</label>
+				<label for="js-input-name">Name</label>
 				<p class="help-block">Enter your test name</p>
-				<input autofocus required type="text" class="form-control" id="exampleInputEmail1" placeholder="History 10a" name="name" value="{{test.Name}}">
+				<input autofocus required type="text" class="form-control" id="js-input-name" placeholder="History 10a" name="name" value="{{test.Name}}">
 			</div>
 			<div class="form-group">
 				<label for="js-upload-tags">Tags</label>
-				<p class="help-block">Please enter your test tags using "," for separation</p>
+				<p class="help-block">Please enter your test tags using commas for separation</p>
 				<input type="text" placeholder="History, WWII, Tanks" class="input" name="tags" id="js-upload-tags" value="{{test.Tags}}">
 				
 				<div class="form-tags">
@@ -64,7 +66,6 @@
 		</div>
 	{% endfor %}
 	</div>
-	<button>add questions</button>
 </div>
 
 </form>
@@ -117,6 +118,12 @@
 		$(this).remove();
 		
 		return false;
+	});
+	
+	$('#js-add-questions').on('click', function()
+	{
+		$('#js-input-name').removeAttr('required');
+		$('#js-test-form').attr('action', '/questions{% if test.TestID %}/add/{{test.TestID}}{% endif %}');
 	});
 }());
 </script>

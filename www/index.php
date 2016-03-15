@@ -67,12 +67,9 @@ else
 {
 	$Klein->respond( 'GET', '/logout', [ 'System\Login', 'HandleLogout' ] );
 	
-	$Klein->respond( 'GET', '/', function( $Request, $Response, $Service, $App )
-	{
-		$Response->redirect( '/questions' );
-	} );
-	
 	$Klein->respond( 'GET', '/questions', [ 'System\Questions', 'Render' ] );
+	$Klein->respond( 'POST', '/questions', [ 'System\Questions', 'Render' ] );
+	$Klein->respond( 'POST', '/questions/add/[i:TestID]', [ 'System\Questions', 'Render' ] );
 	$Klein->respond( 'POST', '/questions/upload', [ 'System\Questions', 'HandleFileUpload' ] );
 	
 	$Klein->respond( 'GET', '/tests', [ 'System\Tests', 'Render' ] );
@@ -84,6 +81,14 @@ else
 	$Klein->respond( 'GET', '/groups', [ 'System\Groups', 'Render' ] );
 	$Klein->respond( 'GET', '/students', [ 'System\Students', 'Render' ] );
 	$Klein->respond( 'GET', '/assignments', [ 'System\Assignments', 'Render' ] );
+	
+	$Klein->onHttpError( function( $Code, $Router )
+	{
+		if( $Code === 404 )
+		{
+			$Router->response()->redirect( '/questions' );
+		}
+	} );
 }
 
 $Klein->respond( 'GET', '/question/[i:ID]', [ 'System\Test', 'DisplayQuestion' ] );

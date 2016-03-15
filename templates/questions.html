@@ -3,14 +3,16 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.11/css/dataTables.bootstrap.min.css" type="text/css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-tagsinput/1.3.6/jquery.tagsinput.min.css">
 
-<form action="/tests/new" method="POST" id="js-questions-form">
+<form action="/tests/{% if testid %}edit/{{testid}}{% else %}new{% endif %}" method="POST" id="js-questions-form">
+<input type="hidden" name="name" value="{{selected_name}}">
+<input type="hidden" name="tags" value="{{selected_tags}}">
+
 <div id="js-affix">
 	<div class="top-buttons">
 		<div class="container">
 			<div class="pull-right">
 				<button type="button" class="goodbutton" data-toggle="modal" data-target="#upload_question"><i class="fa fa-cloud-upload"></i>Upload Questions</button>
-				<button type="submit" class="createnew" id="js-create-test"><i class="fa fa-plus-circle"></i>Create Test</button>
-			
+				<button type="submit" class="createnew" id="js-create-test"><i class="fa fa-plus-circle"></i>{% if selected_name or testid %}Save Test{% else %}Create Test{% endif %}</button>
 			</div>
 			
 			<button type="button" class="goodbutton" id="js-show-tags"><i class="fa fa-tags"></i><span class="btn-text" data-other="Hide Questions Tags">Show Questions Tags</span></button>
@@ -32,6 +34,9 @@
 
 <div class="container container-main">
 	<h2>{{title}}</h2>
+{%if selected_name or testid %}
+	<h3>Adding questions to <i>{{selected_name}}</i></h3>
+{% endif %}
 
 <table id="js-questions-table" class="table table-striped table-bordered">
 	<thead>
@@ -44,10 +49,10 @@
 	</thead>
 	<tbody>
 		{% for question in questions %}
-			<tr class="js-question">
+			<tr class="js-question{% if attribute(selected_questions, question.QuestionID) %} question-selected{% endif %}">
 				<td style='text-align:center;'>
 					<label class="control checkbox">
-						<input type="checkbox" value="{{question.QuestionID}}" class="js-question-select">
+						<input type="checkbox" value="{{question.QuestionID}}" class="js-question-select"{% if attribute(selected_questions, question.QuestionID) %} checked{% endif %}>
 						<span class="control-indicator"></span>
 					</label>
 				</td>
@@ -79,30 +84,32 @@
 		<form class="modal-content" action="/questions/upload" method="POST" enctype="multipart/form-data">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title" id="myModalLabel"><i class="fa fa-cloud-upload"></i> Upload questions</h4>
+				<h2 class="modal-title" id="myModalLabel"><i class="fa fa-cloud-upload"></i> Upload Questions</h2>
 			</div>
 			<div class="modal-body">
-				<div class="form-group">
+				<div class="form-group" style='margin-bottom:30px;'>
 					<label for="exampleInputFile">Question Source</label>
-					<input type="file" id="exampleInputFile" name="questions[]" multiple="">
 					<p class="help-block">Choose your questions in QTI format</p>
+					<input type="file" id="exampleInputFile" name="questions[]" multiple="">
 				</div>
-				<div class="form-group">
+				<div class="form-group" style='margin-bottom:30px;'>
 					<label for="tagcloud">Question Tags</label>
+					<p class="help-block">Please enter tags using commas (",") for separation</p>
 					<input type="text" placeholder="History, WWII, Tanks" class="input" name="tags" id="js-upload-tags">
-					<p class="help-block">Please enter tags using "," for separation</p>
 					
-					<div class="form-tags">
-						<label for="usedtags">Used Tags</label><br/>
+					
+				</div>
+				<div class="form-tags">
+						<label for="usedtags">Frequently Used Tags</label><br/>
+						<p class="help-block">You can choose tags that you've already added</p>
 					{% for tag, count in tags %}
 						<span class="label label-default js-upload-tag" data-tag="{{tag}}">{{tag}}</span>
 					{% endfor %}
 					</div>
-				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-				<button type="submit" class="btn btn-primary">Upload</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">CLOSE</button>
+				<button type="submit" class="btn createnew "><i class="fa fa-cloud-upload"></i>Upload</button>
 			</div>
 		</form>
 	</div>
