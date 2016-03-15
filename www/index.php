@@ -23,6 +23,8 @@ $Klein->respond( function( $Request, $Response, $Service, $App )
 		$Environment->addExtension( new Twig_Extension_Debug() );
 		$Environment->addExtension( new Twig_Extensions_Extension_Array() );
 		
+		$Environment->addFilter( new Twig_SimpleFilter( 'md5', 'md5' ) );
+		
 		$Environment->addGlobal( 'system_name', \System\Config::$SystemName );
 		
 		if( isset( $_SESSION[ 'LoggedIn' ] ) )

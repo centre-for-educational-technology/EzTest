@@ -10,12 +10,12 @@
 		<div class="container">
 			<div class="pull-right">
 				{% if test.TestID %}
-					<a href="/assignments/new?id={{test.TestID}}" class="btn"><i class="fa fa-plus-circle"></i> Assign Test</a>
+					<a href="/assignments/new?id={{test.TestID}}" class="btn goodbutton"><i class="fa fa-floppy-o" style='margin-right:7px;'></i>Save</a>
 				{% endif %}
-				<button type="submit" name="save" value="yes" class="btn createnew"><i class="fa fa-plus-circle"></i> Save Test</button>
+				<button type="submit" name="save" value="yes" class="btn createnew"><i class="fa fa-arrow-circle-o-right" ></i>Save & Assign</button>
 			</div>
 			
-			<button type="submit" name="save" value="add_questions" class="createnew" id="js-add-questions"><i class="fa fa-plus-circle"></i>Add Questions</button>
+			<button type="submit" name="save" value="add_questions" class="goodbutton" id="js-add-questions"><i class="fa fa-plus-square-o"></i>Add Questions</button>
 		</div>
 	</div>
 </div>
@@ -51,18 +51,21 @@
 	
 	<div id="js-questions-table" class='dragon'>
 	{% for question in questions %}
-		<div class="row js-question" data-id="">
+		<div class="row js-question">
 			<input type="hidden" name="questions[]" value="{{question.QuestionID}}">
-			<div class='col-xs-1'>
-				<i class="fa fa-arrows-v"></i>
+			<div class='col-xs-1 nopp'>
 				<span class="js-question-number">{{ loop.index }}</span>
 			</div>
 			<div class='col-xs-10'>
 				{{question.Stimulus | raw}}
 			</div>
-			<div class='col-xs-1 text-right'>
+			<div class='col-xs-1 nopp text-right'>
 				<i class="fa fa-times js-delete-question"></i>
 			</div>
+		</div>
+	{% else %}
+		<div class="row js-question">
+			This test has no questions. Click <b>Add questions</b> button to add questions to this test.
 		</div>
 	{% endfor %}
 	</div>

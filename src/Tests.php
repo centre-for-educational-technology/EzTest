@@ -5,7 +5,7 @@ class Tests
 {
 	public static function Render( $Request, $Response, $Service, $App )
 	{
-		$Tests = $App->Database->prepare( 'SELECT `TestID`, `Name`, `Tags` FROM `tests` WHERE `UserID` = :userid ORDER BY `Date` DESC' );
+		$Tests = $App->Database->prepare( 'SELECT `TestID`, `Name`, `Tags`, (SELECT COUNT(*) FROM `tests_questions` WHERE `TestID` = `tests`.`TestID`) as `Size` FROM `tests` WHERE `UserID` = :userid ORDER BY `Date` DESC' );
 		$Tests->bindValue( ':userid', $_SESSION[ 'UserID' ], \PDO::PARAM_INT );
 		$Tests->execute();
 		$Tests = $Tests->fetchAll();
