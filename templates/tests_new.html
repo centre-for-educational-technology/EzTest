@@ -28,28 +28,23 @@
 			<h2>{{title}}</h2>
 			
 			<div class="form-group" style='margin-bottom:30px;'>
-				<label for="js-input-name">Name</label>
-				<p class="help-block">Enter your test name</p>
-				<input autofocus required type="text" class="form-control" id="js-input-name" placeholder="History 10a" name="name" value="{{test.Name}}">
+				<label for="js-input-name">Title</label><br><br>
+				<input autofocus required type="text" class="form-control" id="js-input-name" placeholder="Enter your test name" name="name" value="{{test.Name}}">
 			</div>
 			<div class="form-group" style='margin-bottom:30px;'>
-				<label for="js-upload-tags">Tags</label>
-				<p class="help-block">Please enter your test tags using commas for separation</p>
-				<input type="text" placeholder="History, WWII, Tanks" class="input" name="tags" id="js-upload-tags" value="{{test.Tags}}">
-				
-				<div class="form-tags">
-				{% for tag, count in tags %}
-					<span class="label label-default js-upload-tag" data-tag="{{tag}}">{{tag}}</span>
-				{% endfor %}
-				</div>
+				<label for="js-upload-tags">Tags </label>
+				<i class="fa fa-question-circle js-help" data-toggle="popover" data-placement="right" data-content="Enter your test tags using commas for separation"></i>
+				<br><br>
+				<input type="text" placeholder="Please enter your test tags using commas for separation" class="input" name="tags" id="js-upload-tags" value="{{test.Tags}}">
 			</div>
 		</div>
 	</div>
 </div>
 
 <div class="container betterlabel">
-	<label for="js-questions-table">Test Questions</label>
-	<p class="help-block">You can move and order your questions using <i class="fa fa-arrows-v"></i> drag and drop</p>
+	<label for="js-questions-table">Test Questions</label> 
+	<i class="fa fa-question-circle js-help" data-toggle="popover" data-placement="right" data-content="You can move and order your questions using drag and drop"></i>
+
 	
 	<div class='dragon'>
 		<div id="js-questions-table">
@@ -114,6 +109,8 @@
 		});
 	});
 	
+	$('.js-help').popover({trigger: 'hover'});
+	
 	$('#js-questions-table').on('click', '.js-delete-question', function()
 	{
 		$(this).closest('.js-question').remove();
@@ -121,22 +118,8 @@
 		return false;
 	});
 	
-	var uploadTagsInput = $('#js-upload-tags').tagsInput({
+	$('#js-upload-tags').tagsInput({
 		width: 'auto'
-	});
-	
-	$('.js-upload-tag').on('click', function()
-	{
-		var tag = $(this).data('tag');
-		
-		if(!uploadTagsInput.tagExist(tag))
-		{
-			uploadTagsInput.addTag(tag);
-		}
-		
-		$(this).remove();
-		
-		return false;
 	});
 	
 	$('.js-add-questions').on('click', function()

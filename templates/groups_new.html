@@ -1,0 +1,66 @@
+{% include "header.html" %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-tagsinput/1.3.6/jquery.tagsinput.min.css">
+
+<form action="/groups/{% if group.GroupID %}edit/{{group.GroupID}}{% else %}new{% endif %}" enctype="multipart/form-data" method="POST" id="js-test-form">
+
+<div id="js-affix">
+	<div class="top-buttons">
+		<div class="container">
+			<div class="pull-right">
+				{% if group.GroupID %}
+					<button type="submit" name="save" value="return" class="btn createnew"><i class="fa fa-floppy-o" style='margin-right:7px;'></i>Save Group</button>
+				{% else %}
+					<button type="submit" name="save" value="return" class="btn createnew"><i class="fa fa-floppy-o" style='margin-right:7px;'></i>Create Group</button>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class='container betterlabel' id="js-affix-padding">
+	<div class='row'>
+		<div class='col-xs-12'>
+			<h2>{{title}}</h2>
+			
+			<div class="form-group" style='margin-bottom:30px;'>
+				<label for="js-input-name">Name</label>
+				<p class="help-block">Enter your test name</p>
+				<input autofocus required type="text" class="form-control" id="js-input-name" placeholder="10a" name="name" value="{{group.GroupName}}">
+			</div>
+			<div class="form-group" style='margin-bottom:30px;'>
+				<label for="js-upload-tags">Student Emails</label>
+				<p class="help-block">Please enter your test tags using commas for separation</p>
+				<input type="text" class="input" name="tags" id="js-upload-tags" value="{{students}}">
+			</div>
+		</div>
+	</div>
+</div>
+
+</form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-tagsinput/1.3.6/jquery.tagsinput.min.js"></script>
+<script>
+(function()
+{
+	$('#js-affix').affix({
+		offset:
+		{
+			top: $('#js-affix').offset().top
+		}
+	}).on('affix.bs.affix', function()
+	{
+		$('#js-affix-padding').css('padding-top', 20 + $(this).height());
+	}).on("affix-top.bs.affix", function()
+	{
+		$('#js-affix-padding').css('padding-top', '');
+	});
+	
+	$('.js-help').popover({trigger: 'hover'});
+	
+	$('#js-upload-tags').tagsInput({
+		width: 'auto'
+	});
+}());
+</script>
+{% include "footer.html" %}

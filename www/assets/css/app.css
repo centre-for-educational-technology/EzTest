@@ -277,11 +277,13 @@ input[type="checkbox"]:focus, input[type="checkbox"]{
 	    border: 1px solid #bbb;
     border-radius: 5px;
 }
+
 .dragon .row.js-question {
-	margin: 10px 0px;
-	padding: 10px;
+	margin: 0px 0px;
+	padding: 20px;
 	/* border: 1px solid #ccc; */
 	border-radius: 0px;
+	    border-bottom: 1px solid #F3F8FC;
 }
 
 .navbar-default .navbar-nav>li>a {

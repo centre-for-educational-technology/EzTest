@@ -81,6 +81,11 @@ else
 	$Klein->respond( 'POST', '/tests/edit/[i:ID]', [ 'System\Tests', 'RenderNewTest' ] );
 	
 	$Klein->respond( 'GET', '/groups', [ 'System\Groups', 'Render' ] );
+	$Klein->respond( 'GET', '/groups/new', [ 'System\Groups', 'RenderNewGroup' ] );
+	$Klein->respond( 'POST', '/groups/new', [ 'System\Groups', 'RenderNewGroup' ] );
+	$Klein->respond( 'GET', '/groups/edit/[i:ID]', [ 'System\Groups', 'RenderNewGroup' ] );
+	$Klein->respond( 'POST', '/groups/edit/[i:ID]', [ 'System\Groups', 'RenderNewGroup' ] );
+	
 	$Klein->respond( 'GET', '/students', [ 'System\Students', 'Render' ] );
 	
 	$Klein->respond( 'GET', '/assignments', [ 'System\Assignments', 'Render' ] );

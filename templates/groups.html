@@ -6,7 +6,7 @@
 	<div class="top-buttons">
 		<div class="container">
 			<div class="pull-right">
-				<button type="button" class="createnew" data-toggle="modal" data-target="#js-create-group"><i class="fa fa-users"></i>Create New Group</button>
+				<a class="btn createnew" href="/groups/new"><i class="fa fa-users"></i>Create New Group</a>
 			</div>
 		</div>
 	</div>
@@ -19,7 +19,8 @@
 	<thead>
 		<tr>
 			<th>Group</th>
-			<th style='width:44px;' class="text-center">Preview</th>
+			<th style='width:44px;' class="text-center">Students</th>
+			<th style='width:44px;' class="text-center">Edit</th>
 			<th style='width:44px;' class="text-center">Delete</th>
 		</tr>
 	</thead>
@@ -27,7 +28,8 @@
 		{% for group in groups %}
 			<tr class="js-group">
 				<td>{{group.GroupName}}</td>
-				<td style='text-align:center;'><a href="/group/{{group.GroupID}}" target='_blank'><i class="fa fa-eye"></i></a></td>
+				<td style='text-align:center;'>{{group.Size}}</a></td>
+				<td style='text-align:center;'><a href="/groups/edit/{{group.GroupID}}"><i class="fa fa-pencil"></i></a></td>
 				<td style='text-align:center;'><i class="fa fa-times js-delete-group"></i></td>
 			</tr>
 		{% endfor %}
@@ -35,36 +37,6 @@
 </table>
 
 </div><!-- container -->
-
-<!-- Upload File Modal -->
-<div class="modal fade" id="js-create-group" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-	<div class="modal-dialog" role="document">
-		<form class="modal-content" action="/groups/create" method="POST" enctype="multipart/form-data">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h2 class="modal-title" id="myModalLabel"><i class="fa fa-cloud-upload"></i> Upload Questions</h2>
-			</div>
-			<div class="modal-body">
-				<div class="form-group" style='margin-bottom:30px;'>
-					<label for="exampleInputFile">Question Source</label>
-					<p class="help-block">Choose your questions in QTI format</p>
-					<input type="file" id="exampleInputFile" name="questions[]" multiple="">
-				</div>
-				<div class="form-group" style='margin-bottom:30px;'>
-					<label for="tagcloud">Question Tags</label>
-					<p class="help-block">Please enter tags using commas (",") for separation</p>
-					<input type="text" placeholder="History, WWII, Tanks" class="input" name="tags" id="js-upload-tags">
-					
-					
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">CLOSE</button>
-				<button type="submit" class="btn createnew "><i class="fa fa-cloud-upload"></i>Upload</button>
-			</div>
-		</form>
-	</div>
-</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.11/js/jquery.dataTables.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.11/js/dataTables.bootstrap.min.js"></script>
