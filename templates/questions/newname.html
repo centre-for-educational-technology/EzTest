@@ -1,0 +1,18 @@
+{% include "questions/header.html" %}
+<div role="main" class="ui-content">
+	<img src="https://secure.gravatar.com/avatar/{{assignment.Email | md5}}?s=256&amp;d=mm" width="128" height="128" class="avatar">
+	
+	{{assignment.UserName}}
+	
+	{{assignment.AssignmentName}}
+	
+	{{assignment.TestName}}
+	
+	<form>
+		<label for="text-basic">Enter your name:</label>
+		<input type="text" name="text-basic" id="text-basic" value="">
+		<button class="ui-btn ui-corner-all">Button</button>
+		</div>
+	</form>
+</div>
+{% include "questions/footer.html" %}

@@ -3,9 +3,10 @@ namespace System;
 
 class Mail
 {
-	public static function SendEmail( $Address, $Subject, $Body )
+	public static function SendEmail( $Address, $Subject, $Body, $From )
 	{
 		$Mail = new \PHPMailer;
+		$Mail->IsHTML( true );
 		$Mail->Subject = $Subject;
 		$Mail->Body    = $Body;
 		$Mail->SMTPDebug = 2; echo '<pre>'; // DEBUG
@@ -26,7 +27,7 @@ class Mail
 			}
 		}
 		
-		$Mail->setFrom( Config::$MailSendFrom, Config::$SystemName );
+		$Mail->setFrom( Config::$MailSendFrom, $From . ' (' . Config::$SystemName . ')' );
 		$Mail->addAddress( $Address );
 		
 		if( !$Mail->send() )

@@ -2,3 +2,7 @@
 	max-width: 960px;
 	margin: 0 auto;
 }
+
+.avatar {
+	border-radius: 50%;
+}

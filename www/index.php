@@ -89,6 +89,7 @@ else
 	$Klein->respond( 'GET', '/students', [ 'System\Students', 'Render' ] );
 	
 	$Klein->respond( 'GET', '/assignments', [ 'System\Assignments', 'Render' ] );
+	$Klein->respond( 'GET', '/assignments/view/[i:ID]', [ 'System\Assignments', 'RenderView' ] );
 	$Klein->respond( 'POST', '/assignments/create', [ 'System\Assignments', 'HandleNew' ] );
 	
 	$Klein->onHttpError( function( $Code, $Router )
@@ -99,6 +100,9 @@ else
 		}
 	} );
 }
+
+$Klein->respond( 'GET', '/email', [ 'System\Test', 'RenderEmail' ] );
+$Klein->respond( 'GET', '/private/[:Hash]', [ 'System\Test', 'RenderPrivateTest' ] );
 
 $Klein->respond( 'GET', '/question/[i:ID]', [ 'System\Test', 'DisplayQuestion' ] );
 $Klein->respond( 'POST', '/question/[i:ID]', [ 'System\Test', 'HandleQuestionAnswer' ] );
