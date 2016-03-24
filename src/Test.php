@@ -22,6 +22,51 @@ class Test
 		return self::RenderQuestion( $App, $Question );
 	}
 	
+	public static function RenderEmail( $Request, $Response, $Service, $App )
+	{
+		return $App->Twig->render( 'emails/new_test.html', [
+			'hash' => 'wolololol',
+		] );
+	}
+	
+	public static function RenderPrivateTest( $Request, $Response, $Service, $App )
+	{
+		$Hash = $Request->Hash;
+		
+		if( !isset( $_SESSION[ $Hash ] ) )
+		{
+			$Assignment = $App->Database->prepare(
+				'SELECT `Hash`, `assignments_users`.`AssignmentID`, `assignments`.`Name` as `AssignmentName`, `tests`.`Name` as `TestName`, `users`.`Name` as `UserName`, `users`.`Email` FROM `assignments_users` ' .
+				'JOIN `assignments` ON `assignments_users`.`AssignmentID` = `assignments`.`AssignmentID` ' .
+				'JOIN `tests` ON `assignments`.`TestID` = `tests`.`TestID` ' .
+				'JOIN `users` ON `assignments_users`.`UserID` = `users`.`UserID` ' .
+				'WHERE `Hash` = :hash'
+			);
+			$Assignment->bindValue( ':hash', $Hash );
+			$Assignment->execute();
+			$Assignment = $Assignment->fetch();
+			
+			echo '<pre>'; print_r($Assignment); echo '</pre>';
+			
+			if( !$Assignment )
+			{
+				$Response->code( 404 );
+				
+				return 'This assignment does not exist.';
+			}
+			
+			//$_SESSION[ $Hash ] = [];
+		}
+		else
+		{
+			$Assignment = $_SESSION[ $Hash ];
+		}
+		
+		return $App->Twig->render( 'questions/newname.html', [
+			'assignment' => $Assignment,
+		] );
+	}
+	
 	public static function HandleQuestionAnswer( $Request, $Response, $Service, $App )
 	{
 		$Question = $App->Database->prepare( 'SELECT `QuestionID`, `Type`, `Data` FROM `questions` WHERE `QuestionID` = :id' );
