@@ -8,6 +8,44 @@ CREATE DATABASE IF NOT EXISTS `edu_testing` /*!40100 DEFAULT CHARACTER SET utf8m
 USE `edu_testing`;
 
 
+-- Dumping structure for table edu_testing.assignments
+CREATE TABLE IF NOT EXISTS `assignments` (
+  `AssignmentID` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `Name` varchar(100) NOT NULL,
+  `GroupID` int(11) unsigned NOT NULL DEFAULT '0',
+  `TestID` int(11) unsigned NOT NULL DEFAULT '0',
+  `UserID` int(11) unsigned NOT NULL DEFAULT '0',
+  `OneTimeTest` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `Date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`AssignmentID`),
+  UNIQUE KEY `GroupID_TestID` (`GroupID`,`TestID`),
+  KEY `FK_assignments_tests` (`TestID`),
+  KEY `FK_assignments_users` (`UserID`),
+  CONSTRAINT `FK_assignments_groups` FOREIGN KEY (`GroupID`) REFERENCES `groups` (`GroupID`),
+  CONSTRAINT `FK_assignments_tests` FOREIGN KEY (`TestID`) REFERENCES `tests` (`TestID`),
+  CONSTRAINT `FK_assignments_users` FOREIGN KEY (`UserID`) REFERENCES `users` (`UserID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Data exporting was unselected.
+
+
+-- Dumping structure for table edu_testing.assignments_users
+CREATE TABLE IF NOT EXISTS `assignments_users` (
+  `AssignmentID` int(11) unsigned DEFAULT NULL,
+  `UserID` int(11) unsigned NOT NULL,
+  `Hash` varchar(72) NOT NULL,
+  `LastVisit` datetime NOT NULL,
+  `EmailSent` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  UNIQUE KEY `Hash` (`Hash`),
+  KEY `FK_assignments_users_assignments` (`AssignmentID`),
+  KEY `FK_assignments_users_users` (`UserID`),
+  CONSTRAINT `FK_assignments_users_assignments` FOREIGN KEY (`AssignmentID`) REFERENCES `assignments` (`AssignmentID`),
+  CONSTRAINT `FK_assignments_users_users` FOREIGN KEY (`UserID`) REFERENCES `users` (`UserID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Data exporting was unselected.
+
+
 -- Dumping structure for table edu_testing.groups
 CREATE TABLE IF NOT EXISTS `groups` (
   `GroupID` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -58,10 +96,10 @@ CREATE TABLE IF NOT EXISTS `questions` (
 -- Dumping structure for table edu_testing.tests
 CREATE TABLE IF NOT EXISTS `tests` (
   `TestID` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `Tags` varchar(100) DEFAULT '',
-  `Name` varchar(100) DEFAULT '',
-  `UserID` int(11) unsigned DEFAULT NULL,
-  `Date` datetime DEFAULT CURRENT_TIMESTAMP,
+  `Tags` varchar(100) NOT NULL DEFAULT '',
+  `Name` varchar(100) NOT NULL DEFAULT '',
+  `UserID` int(11) unsigned,
+  `Date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`TestID`),
   KEY `FK_tests_users` (`UserID`),
   CONSTRAINT `FK_tests_users` FOREIGN KEY (`UserID`) REFERENCES `users` (`UserID`)
@@ -72,9 +110,9 @@ CREATE TABLE IF NOT EXISTS `tests` (
 
 -- Dumping structure for table edu_testing.tests_questions
 CREATE TABLE IF NOT EXISTS `tests_questions` (
-  `TestID` int(11) unsigned DEFAULT NULL,
-  `QuestionID` int(11) unsigned DEFAULT NULL,
-  `Order` int(11) unsigned DEFAULT NULL,
+  `TestID` int(11) unsigned,
+  `QuestionID` int(11) unsigned,
+  `Order` int(11) unsigned NOT NULL,
   KEY `FK_tests_questions_questions` (`QuestionID`),
   KEY `FK_tests_questions_tests` (`TestID`),
   KEY `Order` (`Order`),
