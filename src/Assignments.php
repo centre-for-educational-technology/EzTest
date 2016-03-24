@@ -36,10 +36,17 @@ class Assignments
 		] );
 	}
 	
+	public static function RenderView( $Request, $Response, $Service, $App )
+	{
+		return $App->Twig->render( 'assignment_view.html', [
+			'title' => 'Assignments',
+			'tab' => 'assignments',
+			'assignment' => $Assignment,
+		] );
+	}
+	
 	public static function HandleNew( $Request, $Response, $Service, $App )
 	{
-		var_dump($_POST);
-		
 		$Name = filter_input( INPUT_POST, 'name', FILTER_SANITIZE_STRING );
 		$Notes = filter_input( INPUT_POST, 'notes', FILTER_SANITIZE_STRING );
 		$GroupID = (int)filter_input( INPUT_POST, 'groupid', FILTER_SANITIZE_NUMBER_INT );
@@ -62,15 +69,43 @@ class Assignments
 		$InsertNew->bindValue( ':groupid', $GroupID, \PDO::PARAM_INT );
 		$InsertNew->execute();
 		
+		$Assignment = $App->Database->prepare( 'SELECT `AssignmentID` FROM `assignments` WHERE `UserID` = :userid ORDER BY `AssignmentID` DESC LIMIT 1' );
+		$Assignment->bindValue( ':userid', $_SESSION[ 'UserID' ], \PDO::PARAM_INT );
+		$Assignment->execute();
+		$Assignment = $Assignment->fetch();
+		
 		$Students = $App->Database->prepare( 'SELECT `users`.`UserID`, `Email` FROM `groups_users` JOIN `users` ON `StudentID` = `UserID` WHERE `GroupID` = :id' );
 		$Students->bindValue( ':id', $GroupID, \PDO::PARAM_INT );
 		$Students->execute();
 		$Students = $Students->fetchAll();
 		
-		var_dump( $Students );
+		$InsertNew = $App->Database->prepare( 'INSERT INTO `assignments_users` (`AssignmentID`, `UserID`, `Hash`) VALUES (:id, :userid, :hash)' );
+		$InsertNew->bindValue( ':id', $Assignment->AssignmentID, \PDO::PARAM_INT );
 		
+		foreach( $Students as $Student )
+		{
+			$Hash = self::GenerateRandomID( $Student->Email, $TestID, $GroupID, $Name . $Notes );
+			
+			$InsertNew->bindValue( ':hash', $Hash );
+			$InsertNew->bindValue( ':userid', $Student->UserID, \PDO::PARAM_INT );
+			$InsertNew->execute();
+			
+			// TODO: Send emails
+		}
 		
+		$Response->redirect( '/assignments/view/' . $Assignment->AssignmentID );
+	}
+	
+	// Yes this function is horrible, but it's enough for our purposes
+	private static function GenerateRandomID( $a, $b, $c, $d )
+	{
+		$hash = [ $a, $b, $c, $d, uniqid( rand(), true ), microtime( true ) ];
 		
-	//	$Response->redirect( '/assignments?success' );
+		shuffle( $hash );
+		
+		$hash = implode( ' ', $hash );
+		$hash = hash( 'sha256', $hash );
+		
+		return implode( '-', str_split( $hash, 8 ) );
 	}
 }
