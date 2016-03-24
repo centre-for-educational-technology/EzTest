@@ -9,7 +9,7 @@ class Students
 			'SELECT `UserID`, `Email`, `Name` FROM `users` WHERE `UserID` IN ' .
 				'(SELECT `StudentID` FROM `groups_users` WHERE `GroupID` IN ' .
 					'(SELECT `GroupID` FROM `groups` WHERE `UserID` = :userid)' .
-				')'
+				') ORDER BY `UserID` DESC'
 		);
 		$Students->bindValue( ':userid', $_SESSION[ 'UserID' ], \PDO::PARAM_INT );
 		$Students->execute();

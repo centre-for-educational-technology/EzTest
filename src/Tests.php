@@ -5,7 +5,7 @@ class Tests
 {
 	public static function Render( $Request, $Response, $Service, $App )
 	{
-		$Tests = $App->Database->prepare( 'SELECT `TestID`, `Name`, `Tags`, (SELECT COUNT(*) FROM `tests_questions` WHERE `TestID` = `tests`.`TestID`) as `Size` FROM `tests` WHERE `UserID` = :userid ORDER BY `Date` DESC' );
+		$Tests = $App->Database->prepare( 'SELECT `TestID`, `Name`, `Tags`, (SELECT COUNT(*) FROM `tests_questions` WHERE `TestID` = `tests`.`TestID`) as `Size` FROM `tests` WHERE `UserID` = :userid ORDER BY `TestID` DESC' );
 		$Tests->bindValue( ':userid', $_SESSION[ 'UserID' ], \PDO::PARAM_INT );
 		$Tests->execute();
 		$Tests = $Tests->fetchAll();
@@ -139,12 +139,12 @@ class Tests
 				$TestID = $Test->TestID;
 			}
 			
+			$InsertQuestion = $App->Database->prepare( 'DELETE FROM `tests_questions` WHERE `TestID` = :testid' );
+			$InsertQuestion->bindValue( ':testid', $TestID, \PDO::PARAM_INT );
+			$InsertQuestion->execute();
+			
 			if( !empty( $Questions ) )
 			{
-				$InsertQuestion = $App->Database->prepare( 'DELETE FROM `tests_questions` WHERE `TestID` = :testid' );
-				$InsertQuestion->bindValue( ':testid', $TestID, \PDO::PARAM_INT );
-				$InsertQuestion->execute();
-				
 				$InsertQuestion = $App->Database->prepare( 'INSERT INTO `tests_questions` (`TestID`, `QuestionID`, `Order`) VALUES(:testid, :questionid, :order)' );
 				$InsertQuestion->bindValue( ':testid', $TestID, \PDO::PARAM_INT );
 				
@@ -163,7 +163,7 @@ class Tests
 			}
 			else if( $_POST[ 'save' ] === 'assign' )
 			{
-				$Response->redirect( '/assignments/new/' . $TestID );
+				$Response->redirect( '/assignments?testid=' . $TestID );
 				return;
 			}
 		}

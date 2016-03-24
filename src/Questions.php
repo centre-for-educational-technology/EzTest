@@ -19,7 +19,7 @@ class Questions
 			}
 		}
 		
-		$Questions = $App->Database->prepare( 'SELECT `QuestionID`, `Tags`, `Type`, `Stimulus` FROM `questions` WHERE `UserID` = :userid ORDER BY `Date` DESC' );
+		$Questions = $App->Database->prepare( 'SELECT `QuestionID`, `Tags`, `Type`, `Stimulus` FROM `questions` WHERE `UserID` = :userid ORDER BY `QuestionID` DESC' );
 		$Questions->bindValue( ':userid', $_SESSION[ 'UserID' ], \PDO::PARAM_INT );
 		$Questions->execute();
 		$Questions = $Questions->fetchAll();

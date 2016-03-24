@@ -382,9 +382,14 @@ div.tagsinput span.tag a {
 	color: #95A6B3!important;
 }
 div.tagsinput input {
-	width:120px!important;	
+	    width: 200px!important;	
 }
-
+.concon{
+	width:100%!important;
+	border:0px!important;
+	    padding-left: 36px!important;
+    color: #333;
+}
 button {
 	outline: none!important;
 	font-family: roboto;

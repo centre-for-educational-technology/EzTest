@@ -8,12 +8,12 @@
 	<div class="top-buttons">
 		<div class="container">
 			<div class="pull-right">
-				{% if group.GroupID %}
-					<button type="submit" name="save" value="return" class="btn createnew"><i class="fa fa-floppy-o" style='margin-right:7px;'></i>Save Group</button>
-				{% else %}
-					<button type="submit" name="save" value="return" class="btn createnew"><i class="fa fa-floppy-o" style='margin-right:7px;'></i>Create Group</button>
-				{% endif %}
+				<button type="submit" name="save" value="return" class="btn createnew"><i class="fa fa-floppy-o" style='margin-right:7px;'></i>Save Group</button>
 			</div>
+			
+			{% if group.GroupID %}
+				<img src="https://secure.gravatar.com/avatar/{{group.GroupName | md5}}?s=64&amp;d=retro&amp;f=y" width="32" height="32" class="avatar">
+			{% endif %}
 		</div>
 	</div>
 </div>
@@ -24,13 +24,12 @@
 			<h2>{{title}}</h2>
 			
 			<div class="form-group" style='margin-bottom:30px;'>
-				<label for="js-input-name">Name</label>
-				<p class="help-block">Enter your test name</p>
-				<input autofocus required type="text" class="form-control" id="js-input-name" placeholder="10a" name="name" value="{{group.GroupName}}">
+				<label for="js-input-name">Group Title</label><br><br>
+				<input autofocus required type="text" class="form-control" id="js-input-name" placeholder="Enter your group title" name="name" value="{{group.GroupName}}">
 			</div>
 			<div class="form-group" style='margin-bottom:30px;'>
-				<label for="js-upload-tags">Student Emails</label>
-				<p class="help-block">Please enter your test tags using commas for separation</p>
+				<label for="js-upload-tags">Student Emails</label> 
+				<i class="fa fa-question-circle js-help" data-toggle="popover" data-placement="right" data-content="Enter student emails using commas for separation"></i><br><br>
 				<input type="text" class="input" name="tags" id="js-upload-tags" value="{{students}}">
 			</div>
 		</div>
@@ -59,7 +58,8 @@
 	$('.js-help').popover({trigger: 'hover'});
 	
 	$('#js-upload-tags').tagsInput({
-		width: 'auto'
+		width: 'auto',
+		defaultText: 'add an email'
 	});
 }());
 </script>

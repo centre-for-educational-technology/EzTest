@@ -4,10 +4,8 @@
 
 <div id="js-affix">
 	<div class="top-buttons">
-		<div class="container">
-			<div class="pull-right">
-				<a href="#" class="btn goodbutton">This button will do nothing!</a>
-			</div>
+		<div class="container" style="height:35px">
+			
 		</div>
 	</div>
 </div>
@@ -26,13 +24,24 @@
 	<tbody>
 		{% for student in students %}
 			<tr>
-			    <td><img src="https://secure.gravatar.com/avatar/{{student.Email | md5}}?s=64" width="32" height="32" class="avatar"></td>
-				<td>{{student.Name}}</td>
+			    <td><img src="https://secure.gravatar.com/avatar/{{student.Email | md5}}?s=64&amp;d=mm" width="32" height="32" class="avatar"></td>
+				<td>
+					{% if student.Name is empty %}
+						<i class="fa fa-user-times"></i> <i>No name set yet</i>
+					{% else %}
+						{{student.Name}}
+					{% endif %}
+				</td>
 				<td>{{student.Email}}</td>
 			</tr>
 		{% endfor %}
 	</tbody>
 </table>
+
+<div class="alert alert-info" role="alert">
+	<i class="fa fa-info-circle"></i>
+	Name is set by students themselves before they take their first test
+</div>
 
 </div><!-- container -->
 
@@ -41,19 +50,6 @@
 <script>
 (function()
 {
-	$('#js-affix').affix({
-		offset:
-		{
-			top: $('#js-affix').offset().top
-		}
-	}).on('affix.bs.affix', function()
-	{
-		$('#js-affix-padding').css('padding-top', 20 + $(this).height());
-	}).on("affix-top.bs.affix", function()
-	{
-		$('#js-affix-padding').css('padding-top', '');
-	});
-	
 	var table = $('#js-students-table').DataTable({
 		stripeClasses: [],
 		bSort: false

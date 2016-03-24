@@ -89,7 +89,7 @@ else
 	$Klein->respond( 'GET', '/students', [ 'System\Students', 'Render' ] );
 	
 	$Klein->respond( 'GET', '/assignments', [ 'System\Assignments', 'Render' ] );
-	$Klein->respond( 'GET', '/assignments/new/[i:ID]', [ 'System\Assignments', 'Render' ] );
+	$Klein->respond( 'POST', '/assignments/create', [ 'System\Assignments', 'HandleNew' ] );
 	
 	$Klein->onHttpError( function( $Code, $Router )
 	{

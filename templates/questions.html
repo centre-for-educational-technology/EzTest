@@ -58,7 +58,7 @@
 	<tbody>
 		{% for question in questions %}
 			<tr class="js-question{% if attribute(selected_questions, question.QuestionID) %} question-selected{% endif %}">
-				<td style='text-align:center;'>
+				<td class='text-center'>
 					<label class="control checkbox">
 						<input type="checkbox" value="{{question.QuestionID}}" class="js-question-select"{% if attribute(selected_questions, question.QuestionID) %} checked{% endif %}>
 						<span class="control-indicator"></span>
@@ -76,8 +76,8 @@
 						</div>
 					{% endif %}
 				</td>
-				<td style='text-align:center;'><a href="/question/{{question.QuestionID}}" target='_blank'><i class="fa fa-eye"></i></a></td>
-				<td style='text-align:center;'><i class="fa fa-times js-delete-question"></i></td>
+				<td class='text-center'><a href="/question/{{question.QuestionID}}" target='_blank'><i class="fa fa-eye"></i></a></td>
+				<td class='text-center'><i class="fa fa-times js-delete-question"></i></td>
 			</tr>
 		{% endfor %}
 	</tbody>
