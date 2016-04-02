@@ -19,7 +19,10 @@ class Test
 			return 'Question not found';
 		}
 		
-		return self::RenderQuestion( $App, $Question );
+		return $App->Twig->render( 'questions/question.html', [
+			'question' => $Question,
+			'data' => self::GetQuestionData( $App, $Question ),
+		] );
 	}
 	
 	public static function RenderEmail( $Request, $Response, $Service, $App )
@@ -33,38 +36,136 @@ class Test
 	{
 		$Hash = $Request->Hash;
 		
-		if( !isset( $_SESSION[ $Hash ] ) )
+		$Assignment = $App->Database->prepare(
+			'SELECT `assignments_users`.`AssignmentID`, `assignments`.`Name` as `AssignmentName`, `tests`.`Name` as `TestName`, `users`.`Name` as `UserName`, `users`.`Email`, `users`.`UserID`, `tests`.`TestID`, `assignments_users`.`AssignmentID` FROM `assignments_users` ' .
+			'JOIN `assignments` ON `assignments_users`.`AssignmentID` = `assignments`.`AssignmentID` ' .
+			'JOIN `tests` ON `assignments`.`TestID` = `tests`.`TestID` ' .
+			'JOIN `users` ON `assignments_users`.`UserID` = `users`.`UserID` ' .
+			'WHERE `Hash` = :hash'
+		);
+		$Assignment->bindValue( ':hash', $Hash );
+		$Assignment->execute();
+		$Assignment = $Assignment->fetch();
+		
+		if( !$Assignment )
 		{
-			$Assignment = $App->Database->prepare(
-				'SELECT `Hash`, `assignments_users`.`AssignmentID`, `assignments`.`Name` as `AssignmentName`, `tests`.`Name` as `TestName`, `users`.`Name` as `UserName`, `users`.`Email` FROM `assignments_users` ' .
-				'JOIN `assignments` ON `assignments_users`.`AssignmentID` = `assignments`.`AssignmentID` ' .
-				'JOIN `tests` ON `assignments`.`TestID` = `tests`.`TestID` ' .
-				'JOIN `users` ON `assignments_users`.`UserID` = `users`.`UserID` ' .
-				'WHERE `Hash` = :hash'
-			);
-			$Assignment->bindValue( ':hash', $Hash );
-			$Assignment->execute();
-			$Assignment = $Assignment->fetch();
+			$Response->code( 404 );
 			
-			echo '<pre>'; print_r($Assignment); echo '</pre>';
-			
-			if( !$Assignment )
-			{
-				$Response->code( 404 );
-				
-				return 'This assignment does not exist.';
-			}
-			
-			//$_SESSION[ $Hash ] = [];
+			return 'This assignment does not exist.';
 		}
-		else
-		{
-			$Assignment = $_SESSION[ $Hash ];
-		}
+		
+		$Questions = $App->Database->prepare( 'SELECT `QuestionID`, 0 FROM `tests_questions` WHERE `TestID` = :id ORDER BY `Order`' );
+		$Questions->bindValue( ':id', $Assignment->TestID, \PDO::PARAM_INT );
+		$Questions->execute();
+		$Assignment->Questions = $Questions->fetchAll( \PDO::FETCH_KEY_PAIR );
+		
+		$_SESSION[ $Hash ] = $Assignment;
 		
 		return $App->Twig->render( 'questions/newname.html', [
 			'assignment' => $Assignment,
 		] );
+	}
+	
+	public static function HandlePrivateTest( $Request, $Response, $Service, $App )
+	{
+		$Hash = $Request->Hash;
+		
+		if( !isset( $_SESSION[ $Hash ] ) )
+		{
+			$Response->code( 400 );
+			
+			return 'No assignment session.';
+		}
+		
+		if( empty( $_SESSION[ $Hash ]->UserName ) )
+		{
+			$Response->code( 400 );
+			
+			return 'Your name is not set.';
+		}
+		
+		$Session = $_SESSION[ $Hash ];
+		
+		if( !isset( $_POST[ 'action' ] ) )
+		{
+			$Response->code( 400 );
+			
+			return 'Missing action.';
+		}
+		
+		$Action = $_POST[ 'action' ];
+		
+		if( $Action === 'setname' )
+		{
+			$Name = filter_input( INPUT_POST, 'newname', FILTER_SANITIZE_STRING );
+			
+			if( strlen( $Name ) < 1 )
+			{
+				$Response->code( 400 );
+				
+				return 'Missing name.';
+			}
+			
+			$STH = $App->Database->prepare( 'UPDATE `users` SET `Name` = :name WHERE `UserID` = :userid' );
+			$STH->bindValue( ':userid', $Session->UserID, \PDO::PARAM_INT );
+			$STH->bindValue( ':name', $Name );
+			$STH->execute();
+			
+			$_SESSION[ $Hash ]->UserName = $Name;
+			
+			$Action = 'begin';
+		}
+		
+		if( $Action === 'submitanswer' )
+		{
+			if( !isset( $Session->Questions[ $_POST[ 'questionid' ] ] ) )
+			{
+				$Response->code( 400 );
+				
+				return 'No such question.';
+			}
+			
+			$Session->Questions[ $_POST[ 'questionid' ] ] = 1;
+			$_SESSION[ $Hash ]->Questions = $Session->Questions;
+			
+			$Action = 'begin';
+		}
+		
+		if( $Action === 'begin' )
+		{
+			$NextQuestionID = -1;
+			$CurrentQuestionIndex = 0;
+			
+			foreach( $Session->Questions as $QuestionID => $Solved )
+			{
+				$CurrentQuestionIndex++;
+				
+				if( !$Solved )
+				{
+					$NextQuestionID = $QuestionID;
+					break;
+				}
+			}
+			
+			$Question = $App->Database->prepare( 'SELECT `QuestionID`, `Type`, `Stimulus`, `Data` FROM `questions` WHERE `QuestionID` = :id' );
+			$Question->bindValue( ':id', $NextQuestionID, \PDO::PARAM_INT );
+			$Question->execute();
+			$Question = $Question->fetch();
+			
+			return $App->Twig->render( 'questions/question.html', [
+				'session' => $Session,
+				'question' => $Question,
+				'current_question' => $NextQuestionID,
+				'current_question_index' => $CurrentQuestionIndex,
+				'data' => self::GetQuestionData( $App, $Question ),
+			] );
+		}
+		else
+		{
+			$Response->code( 400 );
+			
+			return 'Unknown action.';
+		}
 	}
 	
 	public static function HandleQuestionAnswer( $Request, $Response, $Service, $App )
@@ -148,7 +249,7 @@ class Test
 		echo '</pre>';
 	}
 	
-	private static function RenderQuestion( $App, $Question )
+	private static function GetQuestionData( $App, $Question )
 	{
 		$Data = json_decode( $Question->Data, true );
 		
@@ -187,11 +288,7 @@ class Test
 			}
 		}
 		
-		return $App->Twig->render( 'questions/question.html', [
-			'question' => $Question,
-			'data' => $Data,
-			'title' => 'Question - ' . \System\Config::$SystemName,
-		] );
+		return $Data;
 		
 		$questionid = $Question->QuestionID;
 		

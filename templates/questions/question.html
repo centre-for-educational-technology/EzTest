@@ -1,22 +1,42 @@
 {% include "questions/header.html" %}
 
-<div data-role="page" id="page1">
-	<div data-role="header">
-		<h1>Page 1</h1>
-	</div>
+<div data-role="header" class='headir'>
+	{% if session.TestID is not empty %}
+		<h1 class="ui-title">Question <b>{{current_question_index}}</b> of <b>{{session.Questions | length}}</b></h1>
+		<a href="#nav-panel" data-icon="bars" data-iconpos="notext">Menu</a>
+	{% else %}
+		<h1>Question Preview</h1>
+	{% endif %}
+</div>
 
-	<div role="main" class="ui-content">
-		<div class="stimulus">{{ question.Stimulus | raw }}</div>
-
-		<form method="POST" action="/question/{{ question.QuestionID }}" class="container">
-			{% set template_name = 'questions/types/' ~ question.Type ~ '.html' %}
-			{% include template_name %}
-
-			<button type="submit">Answer</button>
-		</form>
-	</div>
+<div role="main" class="ui-content">
 	
-	<pre style="color:#aaa;font-size:10px">{{ dump(data) }}</pre>
+	<div class="stimulus">{{ question.Stimulus | raw }}</div>
+
+	<form method="POST">
+		<input type="hidden" name="action" value="submitanswer">
+		<input type="hidden" name="questionid" value="{{question.QuestionID}}">
+		
+		{% set template_name = 'questions/types/' ~ question.Type ~ '.html' %}
+		{% include template_name %}
+
+		<button type="submit" class='answerido ui-corner-all ui-btn ui-icon-carat-r ui-btn-icon-right'>Answer</button>
+	</form>
+</div>
+
+<!--pre style="color:#aaa;font-size:10px">{{ dump(data) }}</pre-->
+
+<div data-role="panel" data-position="left" data-position-fixed="false" data-display="push" id="nav-panel">
+	<ul data-role="listview">
+		<li data-icon="delete" style="background-color:#111;">
+			<a href="#" data-rel="close">Close menu</a>
+		</li>
+	{% for question, solved in session.Questions %}
+		<li class="{% if current_question == question %}current-question{% elseif solved %}solved-question{% endif %}">
+			<a href="#">Question {{loop.index}}</a>
+		</li>
+	{% endfor %}
+	</ul>
 </div>
 
 {% include "questions/footer.html" %}

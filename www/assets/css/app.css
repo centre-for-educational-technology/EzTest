@@ -18,6 +18,7 @@ body {
 	padding: 15px;
 	margin: 100px auto;
 }
+
 .form-signin .form-signin-heading {
 	margin-bottom: 10px;
 }
@@ -73,8 +74,39 @@ div.tagsinput{
 	font-size: 12px;
 	
 }
+.assinfo ul li img{
+	margin-right:10px;
+}
+.assinfo ul li span{
+	color: #A4B5C5;
+}
+.assinfo ul li a{
+	color:#fff;
+	text-decoration: underline;
+}
+.assinfo{
+	margin-bottom:20px;
+	padding:10px;
+	background:#193754;
+	color:#fff;
+	text-align:center;
+}
+.assinfo ul{
+	margin-bottom:0px;
+}
+.assinfo ul li{
+	list-style-type:none;
+	display:inline-block;
+	margin:0px 20px;
+}
 .form-tags .label{
 	cursor:pointer;
+}
+.js-question img{
+	max-width:300px;
+}
+.progress-bar {
+    background-color: #193754;
 }
 h2{
 	margin-top:0px;
@@ -446,11 +478,23 @@ button {
 	background: #DBE9F5!important;
 	transition:0.3s;
 }
+.progress {
+	margin-bottom: 0;
+}
 
 @media screen and (max-width: 767px) {
 	.navbar-default .navbar-toggle:focus, .navbar-default .navbar-toggle:hover {
 		background: none!important;
 	}
+	.assinfo ul li{
+	list-style-type:none;
+	display:block;
+	margin:5px;
+}
+.assinfo ul{
+	padding:0px!important;
+	margin:0px!important;
+}
 	.footer .col-xs-12{
 		text-align:center!important;
 		margin-bottom:10px;
@@ -483,6 +527,9 @@ button {
 	}
 	.upld , .goodbutton-clear{
 		display:none;
+	}
+	.createnew{
+		display:block!important;
 	}
 	.top-buttons .pull-right {
 		width:100%;

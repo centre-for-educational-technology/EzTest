@@ -1,3 +1,11 @@
+body,input,select,textarea,button,.ui-btn {
+	font-family: 'roboto'!important;
+}
+
+.ui-overlay-a, .ui-page-theme-a, .ui-page-theme-a .ui-panel-wrapper {
+	text-shadow:none!important;
+}
+
 .ui-content {
 	max-width: 960px;
 	margin: 0 auto;
@@ -5,4 +13,120 @@
 
 .avatar {
 	border-radius: 50%;
+    border: 4px solid #ddd;
+    margin: 9px 0px;
+}
+.ui-overlay-a, .ui-page-theme-a, .ui-page-theme-a .ui-panel-wrapper {
+    background-color: #fff;
+}
+
+.newname {
+	padding:20px;
+	text-align:center;
+	max-width: 400px;
+}
+.newname .header{
+	margin-bottom:30px;
+}
+.newname .container{
+	padding:20px;
+	background:#f2f2f2;
+}
+.newname h1,h2{
+	font-family:roboto;
+	margin:5px 0px;
+}
+.newname h1{
+	font-weight:500;
+	font-size:24px;
+}
+.newname h2{
+	font-weight:300;
+	font-size:20px;
+}
+.newname .username {
+	margin-top: 10px;
+}
+.newname .email {
+	margin-bottom: 20px;
+}
+.newname .email,
+.newname .username {
+	display: block;
+}
+
+.newname form {
+	margin-bottom: 0;
+}
+
+.newname .ui-btn {
+	margin-top: 10px;
+	margin-bottom: 0;
+}
+.newname .logo {
+	margin-top: 30px;
+}
+.bluestyle{
+	background-color:#193754!important;
+	text-shadow: none!important;
+	color:#fff!important;
+	font-weight:600!important;
+	border:0px!important;
+}
+.bluestyle:hover , .answerido:hover{
+	opacity:0.9;
+}
+.ui-shadow-inset , .ui-shadow{
+	box-shadow: none;
+	-webkit-box-shadow: none;
+	text-shadow:none!important;
+	font-family: roboto;
+	font-weight: 300;
+}
+.answerido{
+	background-color:#6ACA23!important;
+	text-shadow: none!important;
+	color:#fff!important;
+	font-weight: 500!important;
+	border:0px!important;
+}
+.ui-header .ui-title, .ui-footer .ui-title{
+	margin: 0px 45px!important;
+}
+
+.headir{
+	color:#fff!important;
+	background-color:#193754!important;
+	text-shadow: none!important;
+	border:0px!important;
+	padding:10px 0px!important;
+}
+.ui-page-theme-a .ui-radio-on:after, html .ui-bar-a .ui-radio-on:after, html .ui-body-a .ui-radio-on:after, html body .ui-group-theme-a .ui-radio-on:after, .ui-btn.ui-radio-on.ui-btn-a:after{
+	border-color: #6ACA23!important;
+}
+
+.ui-panel {
+	background-color: #F6F6F6!important;
+}
+
+.ui-btn-icon-notext.ui-btn-left {
+    top: 15px!important;
+    left: 12px!important;
+}
+.stimulus{
+	margin-bottom:20px;
+	text-align:left;
+}
+
+.solved-question a {
+	background-color: #ddd!important;
+}
+.current-question a{
+	background-color:#193754!important;
+	color:#fff!important;
+	text-shadow:none!important;
+}
+
+.ui-btn {
+	border:0px!important;
 }

@@ -38,10 +38,36 @@ class Assignments
 	
 	public static function RenderView( $Request, $Response, $Service, $App )
 	{
-		return $App->Twig->render( 'assignment_view.html', [
-			'title' => 'Assignments',
+		$AssignmentID = $Request->ID;
+		
+		$Assignment = $App->Database->prepare(
+			'SELECT `AssignmentID`, `assignments`.`Name`, `tests`.`Name` as `TestName`, `assignments`.`TestID`, `assignments`.`GroupID`, `GroupName`, `assignments`.`Date` FROM `assignments` ' .
+			'JOIN `tests` ON `tests`.`TestID` = `assignments`.`TestID` ' .
+			'JOIN `groups` ON `groups`.`GroupID` = `assignments`.`GroupID` ' .
+			'WHERE `assignments`.`UserID` = :userid AND `AssignmentID` = :id'
+		);
+		$Assignment->bindValue( ':userid', $_SESSION[ 'UserID' ], \PDO::PARAM_INT );
+		$Assignment->bindValue( ':id', $AssignmentID, \PDO::PARAM_INT );
+		$Assignment->execute();
+		$Assignment = $Assignment->fetch();
+		
+		if( !$Assignment )
+		{
+			$Response->code( 404 );
+			
+			return 'Assignment not found';
+		}
+		
+		$Students = $App->Database->prepare( 'SELECT `assignments_users`.`UserID`, `Name`, `Email`, `EmailSent`, `LastVisit` FROM `assignments_users` JOIN `users` ON `assignments_users`.`UserID` = `users`.`UserID` WHERE `AssignmentID` = :id' );
+		$Students->bindValue( ':id', $AssignmentID, \PDO::PARAM_INT );
+		$Students->execute();
+		$Students = $Students->fetchAll();
+		
+		return $App->Twig->render( 'assignments_view.html', [
+			'title' => 'Results',
 			'tab' => 'assignments',
 			'assignment' => $Assignment,
+			'students' => $Students,
 		] );
 	}
 	
@@ -84,7 +110,7 @@ class Assignments
 		
 		foreach( $Students as $Student )
 		{
-			$Hash = self::GenerateRandomID( $Student->Email, $TestID, $GroupID, $Name . $Notes );
+			$Hash = self::GenerateRandomID( );
 			
 			$InsertNew->bindValue( ':hash', $Hash );
 			$InsertNew->bindValue( ':userid', $Student->UserID, \PDO::PARAM_INT );
@@ -96,16 +122,28 @@ class Assignments
 		$Response->redirect( '/assignments/view/' . $Assignment->AssignmentID );
 	}
 	
-	// Yes this function is horrible, but it's enough for our purposes
-	private static function GenerateRandomID( $a, $b, $c, $d )
+	private static function GenerateRandomID( $Length = 32 )
 	{
-		$hash = [ $a, $b, $c, $d, uniqid( rand(), true ), microtime( true ) ];
+		if( function_exists( 'random_bytes' ) )
+		{
+			$Hash = random_bytes( $Length );
+		}
+		else if( function_exists( 'mcrypt_create_iv' ) )
+		{
+			$Hash = mcrypt_create_iv( $Length );
+		}
+		else if( function_exists( 'openssl_random_pseudo_bytes' ) )
+		{
+			$Hash = openssl_random_pseudo_bytes( $Length );
+		}
+		else
+		{
+			throw new \LogicException( 'Your PHP configuration does not have any cryptographically secure functions available.' );
+		}
 		
-		shuffle( $hash );
+		$Hash = hash( 'sha256', $Hash );
 		
-		$hash = implode( ' ', $hash );
-		$hash = hash( 'sha256', $hash );
-		
-		return implode( '-', str_split( $hash, 8 ) );
+		// Split hash into sections of 8 characters
+		return implode( '-', str_split( $Hash, 8 ) );
 	}
 }

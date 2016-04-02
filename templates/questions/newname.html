@@ -1,18 +1,29 @@
 {% include "questions/header.html" %}
-<div role="main" class="ui-content">
-	<img src="https://secure.gravatar.com/avatar/{{assignment.Email | md5}}?s=256&amp;d=mm" width="128" height="128" class="avatar">
+<div role="main" class="ui-content newname">
+	<div class="header">
+		<h1>{{assignment.AssignmentName}}</h1>
+		<h2>{{assignment.TestName}}</h2>
+	</div>
 	
-	{{assignment.UserName}}
+	<div class="container ui-corner-all">
+		<img src="https://secure.gravatar.com/avatar/{{assignment.Email | md5}}?s=256&amp;d=mm" width="128" height="128" class="avatar">
+		
+		<b class="username">{{assignment.UserName}}</b>
+		<i class="email">{{assignment.Email}}</i>
+		
+		<form method="POST">
+			{% if assignment.UserName is empty %}
+				<input type="hidden" name="action" value="setname">
+				<input type="text" name="newname" value="" placeholder="Enter your full name" autofocus required maxlength="50">
+				<button class="ui-btn ui-corner-all bluestyle" type="submit">Save &amp; Begin test</button>
+			{% else %}
+				<input type="hidden" name="action" value="begin">
+				<button class="ui-btn ui-corner-all bluestyle" type="submit">Begin test</button>
+			{% endif %}
+		</form>
+	</div>
 	
-	{{assignment.AssignmentName}}
-	
-	{{assignment.TestName}}
-	
-	<form>
-		<label for="text-basic">Enter your name:</label>
-		<input type="text" name="text-basic" id="text-basic" value="">
-		<button class="ui-btn ui-corner-all">Button</button>
-		</div>
-	</form>
+	<img src="/assets/img/eztest.png" alt="EzTest" class="logo" width="102" height="50">
 </div>
+
 {% include "questions/footer.html" %}

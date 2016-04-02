@@ -103,8 +103,8 @@ else
 
 $Klein->respond( 'GET', '/email', [ 'System\Test', 'RenderEmail' ] );
 $Klein->respond( 'GET', '/private/[:Hash]', [ 'System\Test', 'RenderPrivateTest' ] );
+$Klein->respond( 'POST', '/private/[:Hash]', [ 'System\Test', 'HandlePrivateTest' ] );
 
 $Klein->respond( 'GET', '/question/[i:ID]', [ 'System\Test', 'DisplayQuestion' ] );
-$Klein->respond( 'POST', '/question/[i:ID]', [ 'System\Test', 'HandleQuestionAnswer' ] );
 
 $Klein->dispatch();

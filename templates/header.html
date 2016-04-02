@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="x-ua-compatible" content="ie=edge">
+		<meta name="theme-color" content="#193754">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>{{title}} · {{system_name}}</title>
 		<link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700&subset=latin,cyrillic-ext,latin-ext' rel='stylesheet' type='text/css'>
@@ -40,7 +41,7 @@
 						<span class="icon-bar"></span>
 					</button>
 					
-					<img src="/assets/img/eztest.png" alt="{{system_name}}">
+					<img src="/assets/img/eztest.png" alt="{{system_name}}" width="102" height="50">
 				</div>
 				
 				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -50,6 +51,7 @@
 						<li{% if tab == 'students' %} class="active"{% endif %}><a href="/students">Students</a></li>
 						<li{% if tab == 'groups' %} class="active"{% endif %}><a href="/groups">Groups</a></li>
 						<li{% if tab == 'assignments' %} class="active"{% endif %}><a href="/assignments">Assignments</a></li>
+						<li><a href='/logout'><i class="fa fa-sign-out"></i>Logout</a></li>
 					</ul>
 				</div>
 			</div>
