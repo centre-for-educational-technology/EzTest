@@ -21,10 +21,10 @@
 			{% if logged_in %}
 				<div class='container topsik'>
 					<div class='row'>
-						<div class='col-xs-8 col-sm-6 text-left'>
+						<div class='col-xs-12 col-sm-6 text-left'>
 							You are logged in as <b>{{logged_in_name}}</b>
 						</div>
-						<div class='col-xs-4 col-sm-6 text-right logout'>
+						<div class='hidden-xs col-sm-6 text-right logout'>
 							<a href='/logout'><i class="fa fa-sign-out"></i>Logout</a>	
 						</div>
 					</div>
@@ -51,7 +51,7 @@
 						<li{% if tab == 'students' %} class="active"{% endif %}><a href="/students">Students</a></li>
 						<li{% if tab == 'groups' %} class="active"{% endif %}><a href="/groups">Groups</a></li>
 						<li{% if tab == 'assignments' %} class="active"{% endif %}><a href="/assignments">Assignments</a></li>
-						<li><a href='/logout'><i class="fa fa-sign-out"></i>Logout</a></li>
+						<li class='visible-xs'><a href='/logout'><i class="fa fa-sign-out"></i>Logout</a></li>
 					</ul>
 				</div>
 			</div>

@@ -100,7 +100,7 @@ class Assignments
 		$Assignment->execute();
 		$Assignment = $Assignment->fetch();
 		
-		$Students = $App->Database->prepare( 'SELECT `users`.`UserID`, `Email` FROM `groups_users` JOIN `users` ON `StudentID` = `UserID` WHERE `GroupID` = :id' );
+		$Students = $App->Database->prepare( 'SELECT `users`.`UserID`, `Email`, `users`.`Name` FROM `groups_users` JOIN `users` ON `StudentID` = `UserID` WHERE `GroupID` = :id' );
 		$Students->bindValue( ':id', $GroupID, \PDO::PARAM_INT );
 		$Students->execute();
 		$Students = $Students->fetchAll();

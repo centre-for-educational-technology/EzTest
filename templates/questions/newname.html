@@ -1,18 +1,18 @@
 {% include "questions/header.html" %}
 <div role="main" class="ui-content newname">
 	<div class="header">
-		<h1>{{assignment.AssignmentName}}</h1>
-		<h2>{{assignment.TestName}}</h2>
+		<h1>{{session.AssignmentName}}</h1>
+		<h2>{{session.TestName}}</h2>
 	</div>
 	
 	<div class="container ui-corner-all">
-		<img src="https://secure.gravatar.com/avatar/{{assignment.Email | md5}}?s=256&amp;d=mm" width="128" height="128" class="avatar">
+		<img src="https://secure.gravatar.com/avatar/{{session.Email | md5}}?s=256&amp;d=mm" width="128" height="128" class="avatar">
 		
-		<b class="username">{{assignment.UserName}}</b>
-		<i class="email">{{assignment.Email}}</i>
+		<b class="username">{{session.UserName}}</b>
+		<i class="email">{{session.Email}}</i>
 		
 		<form method="POST">
-			{% if assignment.UserName is empty %}
+			{% if session.UserName is empty %}
 				<input type="hidden" name="action" value="setname">
 				<input type="text" name="newname" value="" placeholder="Enter your full name" autofocus required maxlength="50">
 				<button class="ui-btn ui-corner-all bluestyle" type="submit">Save &amp; Begin test</button>
@@ -21,6 +21,8 @@
 				<button class="ui-btn ui-corner-all bluestyle" type="submit">Begin test</button>
 			{% endif %}
 		</form>
+		
+		<i class='qlenght'>This test has <span style='font-weight:800;'>{{session.Questions | length}}</span> questions</i>
 	</div>
 	
 	<img src="/assets/img/eztest.png" alt="EzTest" class="logo" width="102" height="50">

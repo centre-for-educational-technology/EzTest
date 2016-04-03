@@ -5,9 +5,10 @@ use LearnosityQti\Converter;
 
 class Test
 {
-	public static function DisplayQuestion( $Request, $Response, $Service, $App )
+	public static function PreviewQuestion( $Request, $Response, $Service, $App )
 	{
-		$Question = $App->Database->prepare( 'SELECT `QuestionID`, `Type`, `Stimulus`, `Data` FROM `questions` WHERE `QuestionID` = :id' );
+		$Question = $App->Database->prepare( 'SELECT `QuestionID`, `Type`, `Stimulus`, `Data` FROM `questions` WHERE `UserID` = :userid AND `QuestionID` = :id' );
+		$Question->bindValue( ':userid', $_SESSION[ 'UserID' ], \PDO::PARAM_INT );
 		$Question->bindValue( ':id', $Request->ID, \PDO::PARAM_INT );
 		$Question->execute();
 		$Question = $Question->fetch();
@@ -27,8 +28,27 @@ class Test
 	
 	public static function RenderEmail( $Request, $Response, $Service, $App )
 	{
+		$URL = 'http://';
+		
+		if (isset($_SERVER['HTTPS']) &&
+			($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1) ||
+			isset($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
+			$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'
+		)
+		{
+			$URL = 'https://';
+		}
+		
+		$URL .= $_SERVER[ 'HTTP_HOST' ];
+		$URL .= '/private/wolololol';
+		
 		return $App->Twig->render( 'emails/new_test.html', [
-			'hash' => 'wolololol',
+			'TestURL' => $URL,
+			'AssignmentNote' => 'This is a really simple email template. Its sole purpose is to get you to click the button below.',
+			'AdminName' => 'Lecturer Name',
+			'UserName' => 'Email Reciever',
+			'AssignmentName' => 'Some IT stuff',
+			'TestName' => 'Cool test',
 		] );
 	}
 	
@@ -62,7 +82,7 @@ class Test
 		$_SESSION[ $Hash ] = $Assignment;
 		
 		return $App->Twig->render( 'questions/newname.html', [
-			'assignment' => $Assignment,
+			'session' => $Assignment,
 		] );
 	}
 	
@@ -95,6 +115,13 @@ class Test
 		
 		$Action = $_POST[ 'action' ];
 		
+		if( $Action === 'finish' )
+		{
+			// TODO: Send email with final scores
+			
+			return '<div role="main" class="ui-content">Thanks! :)</div>';
+		}
+		
 		if( $Action === 'setname' )
 		{
 			$Name = filter_input( INPUT_POST, 'newname', FILTER_SANITIZE_STRING );
@@ -118,22 +145,24 @@ class Test
 		
 		if( $Action === 'submitanswer' )
 		{
-			if( !isset( $Session->Questions[ $_POST[ 'questionid' ] ] ) )
+			if( !isset( $Session->Questions[ $_POST[ 'question_id' ] ] ) )
 			{
 				$Response->code( 400 );
 				
 				return 'No such question.';
 			}
 			
-			$Session->Questions[ $_POST[ 'questionid' ] ] = 1;
+			$Session->Questions[ $_POST[ 'question_id' ] ] = 1;
 			$_SESSION[ $Hash ]->Questions = $Session->Questions;
+			
+			self::HandleQuestionAnswer( $Request, $Response, $Service, $App, $Session );
 			
 			$Action = 'begin';
 		}
 		
 		if( $Action === 'begin' )
 		{
-			$NextQuestionID = -1;
+			$NextQuestionID = 0;
 			$CurrentQuestionIndex = 0;
 			
 			foreach( $Session->Questions as $QuestionID => $Solved )
@@ -147,14 +176,34 @@ class Test
 				}
 			}
 			
+			if( $NextQuestionID === 0 )
+			{
+				return $App->Twig->render( 'questions/finish.html', [
+					'session' => $Session,
+				] );
+			}
+			
 			$Question = $App->Database->prepare( 'SELECT `QuestionID`, `Type`, `Stimulus`, `Data` FROM `questions` WHERE `QuestionID` = :id' );
 			$Question->bindValue( ':id', $NextQuestionID, \PDO::PARAM_INT );
 			$Question->execute();
 			$Question = $Question->fetch();
 			
+			$CurrentAnswer = $App->Database->prepare( 'SELECT `Answer` FROM `assignments_answers` WHERE `UserID` = :userid AND `AssignmentID` = :assignmentid AND `QuestionID` = :questionid' );
+			$CurrentAnswer->bindValue( ':userid', $Session->UserID, \PDO::PARAM_INT );
+			$CurrentAnswer->bindValue( ':questionid', $NextQuestionID, \PDO::PARAM_INT );
+			$CurrentAnswer->bindValue( ':assignmentid', $Session->AssignmentID, \PDO::PARAM_INT );
+			$CurrentAnswer->execute();
+			$CurrentAnswer = $CurrentAnswer->fetch();
+			
+			if( $CurrentAnswer )
+			{
+				$CurrentAnswer = json_decode( $CurrentAnswer->Answer, true );
+			}
+			
 			return $App->Twig->render( 'questions/question.html', [
 				'session' => $Session,
 				'question' => $Question,
+				'current_answer' => $CurrentAnswer,
 				'current_question' => $NextQuestionID,
 				'current_question_index' => $CurrentQuestionIndex,
 				'data' => self::GetQuestionData( $App, $Question ),
@@ -168,21 +217,17 @@ class Test
 		}
 	}
 	
-	public static function HandleQuestionAnswer( $Request, $Response, $Service, $App )
+	private static function HandleQuestionAnswer( $Request, $Response, $Service, $App, $Session )
 	{
 		$Question = $App->Database->prepare( 'SELECT `QuestionID`, `Type`, `Data` FROM `questions` WHERE `QuestionID` = :id' );
-		$Question->bindValue( ':id', $Request->ID, \PDO::PARAM_INT );
+		$Question->bindValue( ':id', $_POST[ 'question_id' ], \PDO::PARAM_INT );
 		$Question->execute();
 		$Question = $Question->fetch();
 		
-		if( !$Question )
-		{
-			$Response->code( 404 );
-			
-			return;
-		}
-		
 		$Data = json_decode( $Question->Data, true );
+		
+		$Score = 0;
+		$ProvidedAnswer = '';
 		
 		switch( $Question->Type )
 		{
@@ -190,7 +235,7 @@ class Test
 			{
 				$ProvidedAnswer = filter_input(
 					INPUT_POST,
-					'question_' . $Question->QuestionID . '_answer',
+					'question_answer',
 					FILTER_DEFAULT,
 					isset( $Data[ 'multiple_responses' ] ) ? FILTER_REQUIRE_ARRAY : 0
 				);
@@ -214,37 +259,67 @@ class Test
 							{
 								unset( $ProvidedAnswer[ $ProvidedAnswerFound ] );
 								
-								echo '<h1><b>' . $Answer . '</b> is correct!</h1>';
+								//echo '<h1><b>' . $Answer . '</b> is correct!</h1>';
+								$Score = $Data[ 'validation' ][ 'valid_response' ][ 'score' ];
 							}
 						}
 						
 						foreach( $ProvidedAnswer as $Answer )
 						{
-							echo '<b>' . $Answer . '</b> is an incorrect response<br>';
+							//echo '<b>' . $Answer . '</b> is an incorrect response<br>';
+							$Score = 0;
 						}
 					}
 					else
 					{
 						if( $CorrectAnswer[ 0 ] === $ProvidedAnswer )
 						{
-							echo '<h1>You answered correctly!</h1>';
+							$Score = $Data[ 'validation' ][ 'valid_response' ][ 'score' ];
+							//echo '<h1>You answered correctly!</h1>';
 						}
 						else
 						{
-							echo 'Invalid answer. You answered: <b>' . $ProvidedAnswer . '</b>, correct answer is: <b><u>' . $CorrectAnswer[ 0 ] . '</u></b>';
+							//echo 'Invalid answer. You answered: <b>' . $ProvidedAnswer . '</b>, correct answer is: <b><u>' . $CorrectAnswer[ 0 ] . '</u></b>';
 						}
 					}
 				}
 				
 				break;
 			}
+			case 'longtext':
+			{
+				$ProvidedAnswer = filter_input(
+					INPUT_POST,
+					'question_answer',
+					FILTER_SANITIZE_STRING
+				);
+				
+				if( strlen( $ProvidedAnswer ) > 0 )
+				{
+					$Score = 1;
+				}
+			}
+			case 'clozeassociation':
+			{
+				
+			}
 		}
 		
-		echo '<hr><pre>';
-		if( !empty( $_POST ) )
-		{
-			print_r( $_POST );
-		}
+		$STH = $App->Database->prepare(
+			'INSERT INTO `assignments_answers` (`UserID`, `AssignmentID`, `QuestionID`, `Score`, `Answer`) ' .
+			'VALUES (:userid, :assignmentid, :questionid, :score, :answer) ' .
+			'ON DUPLICATE KEY UPDATE `Score` = VALUES(`Score`), `Answer` = VALUES(`Answer`)'
+		);
+		$STH->bindValue( ':userid', $Session->UserID, \PDO::PARAM_INT );
+		$STH->bindValue( ':questionid', $_POST[ 'question_id' ], \PDO::PARAM_INT );
+		$STH->bindValue( ':assignmentid', $Session->AssignmentID, \PDO::PARAM_INT );
+		$STH->bindValue( ':score', $Score, \PDO::PARAM_INT );
+		$STH->bindValue( ':answer', json_encode( $ProvidedAnswer ) );
+		$STH->execute();
+		
+		var_dump($Score);
+		echo '<pre>';
+		print_r( $_POST );
 		print_r( $Data );
 		echo '</pre>';
 	}
@@ -255,29 +330,36 @@ class Test
 		
 		if( $Question->Type === 'clozeassociation' )
 		{
-			$Responses = [ '<option selected="selected" value="-1"></option>' ];
+			$Responses = [ '<option selected="selected" value="-1" disabled></option>' ];
 			
 			foreach( $Data[ 'possible_responses' ] as $Key => $Response )
 			{
 				$Responses[] = '<option value="' . $Key . '">' . $Response . '</option>';
 			}
 			
-			$Responses = '<select id="question_' . $Question->QuestionID . '_answer" data-inline="true">' . implode( '', $Responses ) . '</select>';
-			
-			$Data[ 'template' ] = str_replace( '{{response}}', $Responses, $Data[ 'template' ] );
+			$Counter = 0;
+			$Data[ 'template' ] = preg_replace_callback( '/{{response}}/', function() use ( $Responses, &$Counter )
+			{
+				return '<select name="question_answer_' . $Counter . '" data-inline="true" required>' . implode( '', $Responses ) . '</select>';
+				
+				$Counter++;
+			}, $Data[ 'template' ] );
 		}
 		else if( $Question->Type === 'clozedropdown' )
 		{
+			$Counter = 0;
+			
 			foreach( $Data[ 'possible_responses' ] as $PossibleResponses )
 			{
-				$Responses = [ '<option selected="selected" value="-1"></option>' ];
+				$Responses = [ '<option selected="selected" value="-1" disabled></option>' ];
 				
 				foreach( $PossibleResponses as $Key => $Response )
 				{
 					$Responses[] = '<option value="' . $Key . '">' . $Response . '</option>';
 				}
 				
-				$Responses = '<select id="question_' . $Question->QuestionID . '_answer" data-inline="true">' . implode( '', $Responses ) . '</select>';
+				$Responses = '<select name="question_answer_' . $Counter . '" data-inline="true" required>' . implode( '', $Responses ) . '</select>';
+				$Counter++;
 				
 				$Position = strpos( $Data[ 'template' ], '{{response}}' );
 				
@@ -287,28 +369,14 @@ class Test
 				}
 			}
 		}
-		
-		return $Data;
-		
-		$questionid = $Question->QuestionID;
-		
-		if( $Question->Type === 'mcq' )
+		else if( $Question->Type === 'mcq' )
 		{
 			if( isset( $Data[ 'shuffle_options' ] ) && $Data[ 'shuffle_options' ] )
 			{
 				shuffle( $Data[ 'options' ] );
 			}
 		}
-		else if( $Question->Type === 'longtext' )
-		{
-			// Maximum number of words that can be entered in the field.
-			$MaxLength = isset( $Data[ 'max_length' ] ) ? (int)$Data[ 'max_length' ] : 10000;
-		}
-		else
-		{
-			echo '<pre>';
-			print_r($Data);
-			echo '</pre>';
-		}
+		
+		return $Data;
 	}
 }

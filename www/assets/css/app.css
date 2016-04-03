@@ -462,6 +462,11 @@ button {
     color: #E5F0F9;
     margin: 0px 7px;
 }
+.clz{
+	font-weight: 600;
+    color: #888!important;
+
+}
 .blag{
     background: #F3F8FC!important;
     margin: 20px 0px;
@@ -531,7 +536,13 @@ button {
 	.createnew{
 		display:block!important;
 	}
+	.inli{
+		display:inline-block!important;
+	}
 	.top-buttons .pull-right {
 		width:100%;
+	}
+	.topsik div{
+		text-align:center!important;
 	}
 }

@@ -69,6 +69,7 @@ else
 {
 	$Klein->respond( 'GET', '/logout', [ 'System\Login', 'HandleLogout' ] );
 	
+	$Klein->respond( 'GET', '/questions/preview/[i:ID]', [ 'System\Test', 'PreviewQuestion' ] );
 	$Klein->respond( 'GET', '/questions', [ 'System\Questions', 'Render' ] );
 	$Klein->respond( 'POST', '/questions', [ 'System\Questions', 'Render' ] );
 	$Klein->respond( 'POST', '/questions/add/[i:TestID]', [ 'System\Questions', 'Render' ] );
@@ -104,7 +105,5 @@ else
 $Klein->respond( 'GET', '/email', [ 'System\Test', 'RenderEmail' ] );
 $Klein->respond( 'GET', '/private/[:Hash]', [ 'System\Test', 'RenderPrivateTest' ] );
 $Klein->respond( 'POST', '/private/[:Hash]', [ 'System\Test', 'HandlePrivateTest' ] );
-
-$Klein->respond( 'GET', '/question/[i:ID]', [ 'System\Test', 'DisplayQuestion' ] );
 
 $Klein->dispatch();

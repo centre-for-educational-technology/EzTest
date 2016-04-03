@@ -10,21 +10,18 @@
 </div>
 
 <div role="main" class="ui-content">
-	
 	<div class="stimulus">{{ question.Stimulus | raw }}</div>
 
 	<form method="POST">
 		<input type="hidden" name="action" value="submitanswer">
-		<input type="hidden" name="questionid" value="{{question.QuestionID}}">
+		<input type="hidden" name="question_id" value="{{question.QuestionID}}">
 		
 		{% set template_name = 'questions/types/' ~ question.Type ~ '.html' %}
 		{% include template_name %}
-
-		<button type="submit" class='answerido ui-corner-all ui-btn ui-icon-carat-r ui-btn-icon-right'>Answer</button>
+		
+		<button type="submit" class='answerido ui-corner-all ui-btn ui-icon-carat-r ui-btn-icon-right'{% if session.TestID is empty %} disabled{% endif %}>Answer</button>
 	</form>
 </div>
-
-<!--pre style="color:#aaa;font-size:10px">{{ dump(data) }}</pre-->
 
 <div data-role="panel" data-position="left" data-position-fixed="false" data-display="push" id="nav-panel">
 	<ul data-role="listview">

@@ -2,14 +2,14 @@
 	{% if data.multiple_responses == true %}
 		<div class="checkbox">
 			<label>
-				<input type="checkbox" id="question_{{ question.QuestionID }}_answer_{{ key }}" name="question_{{ question.QuestionID }}_answer[]" value="{{ option.value }}">
+				<input type="checkbox" name="question_answer[]" value="{{ option.value }}"{% if option.value in current_answer %} checked{% endif %}>
 				{{ option.label }}
 			</label>
 		</div>
 	{% else %}
 		<div class="radio">
 			<label>
-				<input type="radio" id="question_{{ question.QuestionID }}_answer_{{ key }}" name="question_{{ question.QuestionID }}_answer" value="{{ option.value }}">
+				<input type="radio" name="question_answer" value="{{ option.value }}" required{% if current_answer == option.value %} checked{% endif %}>
 				{{ option.label }}
 			</label>
 		</div>

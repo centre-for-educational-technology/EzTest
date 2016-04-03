@@ -1,0 +1,29 @@
+{% include "questions/header.html" %}
+
+<div data-role="header" class='headir'>
+	<h1 class="ui-title">Confirm test end</h1>
+	<a href="#nav-panel" data-icon="bars" data-iconpos="notext">Menu</a>
+</div>
+
+<div role="main" class="ui-content">
+	<form method="POST">
+		<input type="hidden" name="action" value="finish">
+		
+		<button type="submit" class='answerido ui-corner-all ui-btn ui-icon-check ui-btn-icon-right'>Finish</button>
+	</form>
+</div>
+
+<div data-role="panel" data-position="left" data-position-fixed="false" data-display="push" id="nav-panel">
+	<ul data-role="listview">
+		<li data-icon="delete" style="background-color:#111;">
+			<a href="#" data-rel="close">Close menu</a>
+		</li>
+	{% for question, solved in session.Questions %}
+		<li class="{% if current_question == question %}current-question{% elseif solved %}solved-question{% endif %}">
+			<a href="#">Question {{loop.index}}</a>
+		</li>
+	{% endfor %}
+	</ul>
+</div>
+
+{% include "questions/footer.html" %}
