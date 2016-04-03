@@ -29,6 +29,24 @@ CREATE TABLE IF NOT EXISTS `assignments` (
 -- Data exporting was unselected.
 
 
+-- Dumping structure for table edu_testing.assignments_answers
+CREATE TABLE IF NOT EXISTS `assignments_answers` (
+  `UserID` int(11) unsigned,
+  `AssignmentID` int(11) unsigned NOT NULL,
+  `QuestionID` int(11) unsigned NOT NULL,
+  `Score` int(5) unsigned NOT NULL,
+  `Answer` varchar(1000) NOT NULL,
+  UNIQUE KEY `UserID_AssignmentID_QuestionID` (`UserID`,`AssignmentID`,`QuestionID`),
+  KEY `FK_assignments_answers_questions` (`QuestionID`),
+  KEY `FK_assignments_answers_assignments` (`AssignmentID`),
+  CONSTRAINT `FK_assignments_answers_assignments` FOREIGN KEY (`AssignmentID`) REFERENCES `assignments` (`AssignmentID`),
+  CONSTRAINT `FK_assignments_answers_questions` FOREIGN KEY (`QuestionID`) REFERENCES `questions` (`QuestionID`),
+  CONSTRAINT `FK_assignments_answers_users` FOREIGN KEY (`UserID`) REFERENCES `users` (`UserID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Data exporting was unselected.
+
+
 -- Dumping structure for table edu_testing.assignments_users
 CREATE TABLE IF NOT EXISTS `assignments_users` (
   `AssignmentID` int(11) unsigned DEFAULT NULL,
