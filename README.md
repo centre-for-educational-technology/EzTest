@@ -2,9 +2,16 @@
 
 A lightweight student testing system.
 
+## Requirements
+
+- Modern PHP, versions 5.6 and up
+- MySQL database
+- Web server, such as apache or nginx
+- Configured sendmail daemon or SMTP server to send emails to students
+
 ## Installation
 
-### Web server
+### 1. Configure the web server
 
 `www` folder must be the only folder that can be accessed over the web. Protect everything else.
 
@@ -18,6 +25,13 @@ location / {
 }
 ```
 
-### Edit configuration
+### 2. Import the database scheme
+
+It is recommended to create a new locked down user and a new database for use with this system.
+After that is done, import the `install/database.sql` file into your database.
+
+### 3. Edit the configuration
 
 Edit `src/Config.php` file to configure database and email settings.
+This configuration file straight forward and contains most basic settings, such as
+public system name, database and mail settings.
