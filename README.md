@@ -1,4 +1,4 @@
-# EduSystem
+# EzTest *(easy test)*
 
 A lightweight student testing system.
 

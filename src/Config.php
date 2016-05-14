@@ -12,10 +12,10 @@ class Config
 	
 	// SQL server connectiong string
 	// See https://en.wikipedia.org/wiki/Data_source_name
-	public static $Database = 'mysql:host=127.0.0.1;port=3306;dbname=edu_testing;charset=utf8';
+	public static $Database = 'mysql:host=127.0.0.1;port=3306;dbname=eztest;charset=utf8';
 	
 	// SQL server username
-	public static $DatabaseUsername = 'edu_testing';
+	public static $DatabaseUsername = 'eztest';
 	
 	// SQL server password
 	public static $DatabasePassword = '';
@@ -26,7 +26,7 @@ class Config
 	//
 	
 	// Send mails from this address
-	public static $MailSendFrom = 'edusystem@noreply.localhost';
+	public static $MailSendFrom = 'eztest@noreply.localhost';
 	
 	// Specify main and backup SMTP servers
 	// Leave empty if you want to use PHP's mail() function
