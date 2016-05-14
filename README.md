@@ -1,6 +1,9 @@
 # EzTest *(easy test)*
 
-A lightweight student testing system.
+A lightweight student testing system compatible with IMS QTI 2.1.
+Released under the [MIT license](LICENSE).
+
+This project will contain bugs, as it was created as a final year project.
 
 ## Requirements
 
