@@ -1,12 +1,52 @@
 {% include "header.html" %}
 
-<form class="form-signin" method="POST" action="/login">
+<form class="form-signin" method="POST" action="/login" id="js-form-login">
 	<h2 class="form-signin-heading">Please sign in</h2>
 	<label for="inputEmail" class="sr-only">Email address</label>
 	<input type="email" placeholder="somebody@example.com" name="username" id="inputEmail" class="form-control" required autofocus>
 	<label for="inputPassword" class="sr-only">Password</label>
 	<input type="password" placeholder="Password" name="password" id="inputPassword" class="form-control" required>
 	<button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+	<p style="margin-top:20px;text-align:center;">
+		<a href="#" id="js-new-account">or create a new account</a>
+	</p>
 </form>
+
+<form class="form-signin" method="POST" action="/register" id="js-form-register" style="display:none">
+	<h2 class="form-signin-heading">Create new account</h2>
+	<label for="inputEmail2" class="sr-only">Email address</label>
+	<input type="email" placeholder="somebody@example.com" name="username" id="inputEmail2" class="form-control" required autofocus>
+	<label for="inputRealName2" class="sr-only">Password</label>
+	<input type="text" placeholder="Your full name (John Smith)" name="realname" id="inputRealName2" class="form-control" required>
+	<label for="inputPassword2" class="sr-only">Password</label>
+	<input type="password" placeholder="Password" name="password" id="inputPassword2" class="form-control" required>
+	<button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+	<p style="margin-top:20px;text-align:center;">
+		<a href="#" id="js-old-account">or use existing account</a>
+	</p>
+</form>
+
+<script>
+(function()
+{
+	$( '#js-new-account' ).on( 'click', function()
+	{
+		$( '#js-form-login' ).hide();
+		$( '#js-form-register' ).show();
+		$( '#inputEmail2' ).val( $( '#inputEmail' ).val() ).focus();
+		$( '#inputPassword2' ).val( $( '#inputPassword' ).val() );
+		return false;
+	} );
+	
+	$( '#js-old-account' ).on( 'click', function()
+	{
+		$( '#js-form-register' ).hide();
+		$( '#js-form-login' ).show();
+		$( '#inputEmail' ).val( $( '#inputEmail2' ).val() ).focus();
+		$( '#inputPassword' ).val( $( '#inputPassword2' ).val() );
+		return false;
+	} );
+}());
+</script>
 
 {% include "footer.html" %}

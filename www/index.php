@@ -56,6 +56,12 @@ if( !isset( $_SESSION[ 'LoggedIn' ] ) )
 {
 	$Klein->respond( 'GET', '/login', [ 'System\Login', 'Render' ] );
 	$Klein->respond( 'POST', '/login', [ 'System\Login', 'Handle' ] );
+	$Klein->respond( 'POST', '/register', [ 'System\Login', 'HandleRegistration' ] );
+	
+	$Klein->respond( 'GET', '/register', function( $Request, $Response, $Service, $App )
+	{
+		$Response->redirect( '/login' );
+	} );
 	
 	$Klein->onHttpError( function( $Code, $Router )
 	{
