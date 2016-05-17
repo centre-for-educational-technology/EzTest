@@ -53,16 +53,16 @@
 			</div>
 			<div class="modal-body">
 				<div class="form-group" style='margin-bottom:30px;'>
-					<label for="exampleInputFile">Assignment Title</label>
+					<label for="js-asstitle">Assignment Title</label>
 					<br><br>
-					<input type="text" required maxlength="100" class="form-control" placeholder='Enter assignment title' name="name">
+					<input type="text" required maxlength="100" class="form-control" placeholder='Enter assignment title' name="name" id="js-asstitle">
 				</div>
 				
 				<div class="form-group" style='margin-bottom:30px;'>
-					<label for="exampleInputFile">Select a group to assign to</label> 
+					<label for="js-groupid">Select a group to assign to</label> 
 					
 					<br><br>
-					<select required name="groupid" class="form-control js-fancy-select">
+					<select required name="groupid" id="js-groupid" class="form-control js-fancy-select">
 						<option></option>
 						{% for group in groups %}
 							<option  value="{{group.GroupID}}"{% if group.GroupID == group_preselected %} selected{% endif %}>{{group.GroupName}}</option>
@@ -70,11 +70,11 @@
 					</select>
 				</div>
 				<div class="form-group" style='margin-bottom:30px;'>
-					<label for="tagcloud">Select a test to assign</label> 
+					<label for="js-tagcloud">Select a test to assign</label> 
 			
 					<br><br>
 					
-					<select required name="testid" class="form-control js-fancy-select">
+					<select required name="testid" id="js-tagcloud" class="form-control js-fancy-select">
 						<option></option>
 						{% for test in tests %}
 							<option value="{{test.TestID}}"{% if test.TestID == test_preselected %} selected{% endif %}>{{test.Name}}</option>
@@ -83,9 +83,9 @@
 				</div>
 				
 				<div class="form-group" style='margin-bottom:30px;'>
-					<label for="exampleInputFile">Message to students</label>
+					<label for="js-notes">Message to students</label>
 					<br><br>
-					<textarea class="form-control" placeholder='You can enter some notes here' name="notes"></textarea>
+					<textarea class="form-control" placeholder='You can enter some notes here' name="notes" id="js-notes"></textarea>
 				</div>
 				
 					<div class="form-group" style='margin-bottom:30px;'>
