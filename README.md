@@ -8,6 +8,7 @@ This project will contain bugs, as it was created as a final year project.
 ## Requirements
 
 - Modern PHP, versions 5.6 and up
+ - On versions lower than PHP7, extensions [OpenSSL](https://secure.php.net/manual/en/book.openssl.php) or [mcrypt](https://secure.php.net/manual/en/book.mcrypt.php) must be enabled
 - [Composer](https://getcomposer.org/)
 - MySQL database
 - Web server, such as apache or nginx
