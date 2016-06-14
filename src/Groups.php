@@ -105,13 +105,14 @@ class Groups
 			
 			if( !empty( $Students ) )
 			{
-				$CreateStudent = $App->Database->prepare( 'INSERT INTO `users` (`Email`) VALUES(:email) ON DUPLICATE KEY UPDATE `UserID` = `UserID`' );
+				$CreateStudent = $App->Database->prepare( 'INSERT INTO `users` (`Email`, `Password`) VALUES(:email, :password) ON DUPLICATE KEY UPDATE `UserID` = `UserID`' );
 				$InsertStudent = $App->Database->prepare( 'INSERT INTO `groups_users` (`GroupID`, `StudentID`) VALUES(:id, (SELECT `UserID` FROM `users` WHERE `Email` = :email))' );
-				$InsertStudent->bindValue( ':id', $TestID, \PDO::PARAM_INT );
+				$InsertStudent->bindValue( ':id', $GroupID, \PDO::PARAM_INT );
 				
 				foreach( $Students as $Student )
 				{
 					$CreateStudent->bindValue( ':email', $Student );
+					$CreateStudent->bindValue( ':password', password_hash( Students::generateRandomHash(), PASSWORD_DEFAULT ) );
 					$CreateStudent->execute();
 					
 					$InsertStudent->bindValue( ':id', $GroupID, \PDO::PARAM_INT );
