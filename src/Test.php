@@ -96,8 +96,11 @@ class Test
 			
 			return 'No assignment session.';
 		}
+
+		$Action = $_POST[ 'action' ];
+
 		
-		if( empty( $_SESSION[ $Hash ]->UserName ) )
+		if( empty( $_SESSION[ $Hash ]->UserName ) && $Action !== 'setname' )
 		{
 			$Response->code( 400 );
 			
@@ -112,11 +115,14 @@ class Test
 			
 			return 'Missing action.';
 		}
-		
-		$Action = $_POST[ 'action' ];
-		
+				
 		if( $Action === 'finish' )
 		{
+			$LastVisitUpdate = $App->Database->prepare( 'UPDATE `assignments_users` SET `LastVisit` = :lastvisit WHERE `Hash` = :hash' );
+			$LastVisitUpdate->bindValue( ':hash', $Hash );
+			$LastVisitUpdate->bindValue( ':lastvisit', date( 'Y-m-d H:i:s' ) );
+			$LastVisitUpdate->execute();
+
 			// TODO: Send email with final scores
 			
 			return '<div role="main" class="ui-content">Thanks! :)</div>';
