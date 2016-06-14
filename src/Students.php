@@ -21,4 +21,26 @@ class Students
 			'students' => $Students,
 		] );
 	}
+
+	public static function generateRandomHash( $Length = 32 )
+	{
+		if( function_exists( 'random_bytes' ) )
+		{
+			$Hash = random_bytes( $Length );
+		}
+		else if( function_exists( 'mcrypt_create_iv' ) )
+		{
+			$Hash = mcrypt_create_iv( $Length );
+		}
+		else if( function_exists( 'openssl_random_pseudo_bytes' ) )
+		{
+			$Hash = openssl_random_pseudo_bytes( $Length );
+		}
+		else
+		{
+			throw new \LogicException( 'Your PHP configuration does not have any cryptographically secure functions available.' );
+		}
+
+		return $Hash;
+	}
 }

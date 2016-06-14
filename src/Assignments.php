@@ -99,6 +99,11 @@ class Assignments
 		$Assignment->bindValue( ':userid', $_SESSION[ 'UserID' ], \PDO::PARAM_INT );
 		$Assignment->execute();
 		$Assignment = $Assignment->fetch();
+
+		$Test = $App->Database->prepare( 'SELECT `Name` from `tests` WHERE `TestID` = :testid' );
+		$Test->bindValue( ':testid', $TestID, \PDO::PARAM_INT );
+		$Test->execute();
+		$Test = $Test->fetch();
 		
 		$Students = $App->Database->prepare( 'SELECT `users`.`UserID`, `Email`, `users`.`Name` FROM `groups_users` JOIN `users` ON `StudentID` = `UserID` WHERE `GroupID` = :id' );
 		$Students->bindValue( ':id', $GroupID, \PDO::PARAM_INT );
@@ -107,6 +112,9 @@ class Assignments
 		
 		$InsertNew = $App->Database->prepare( 'INSERT INTO `assignments_users` (`AssignmentID`, `UserID`, `Hash`) VALUES (:id, :userid, :hash)' );
 		$InsertNew->bindValue( ':id', $Assignment->AssignmentID, \PDO::PARAM_INT );
+
+		$UpdateEmailSent = $App->Database->prepare( ' UPDATE `assignments_users` SET `EmailSent` = :emailsent WHERE `Hash` = :hash');
+		$UpdateEmailSent->bindValue( ':emailsent', 1, \PDO::PARAM_INT );
 		
 		foreach( $Students as $Student )
 		{
@@ -116,7 +124,29 @@ class Assignments
 			$InsertNew->bindValue( ':userid', $Student->UserID, \PDO::PARAM_INT );
 			$InsertNew->execute();
 			
-			// TODO: Send emails
+			try {
+				$Body = $App->Twig->render( 'emails/new_test.html', [
+					'UserName' => $Student->Name,
+					'AdminName' => $_SESSION[ 'Name' ],
+					'AssignmentName' => $Name,
+					'AssignmentNote' => $Notes,
+					'TestName' => $Test->Name,
+					'TestURL' => self::generateTestUrl($Hash),
+				] );
+				Mail::sendEmail( [ 'name' => $Student->Name, 'email' => $Student->Email ], 'New Assignment', $Body, $_SESSION[ 'Name' ], [
+					[
+						'path' => __DIR__ . '/../www/assets/img/eztest.png',
+						'cid' => 'system_logo',
+						'name' => 'system_logo.png'
+					]
+				] );
+				$UpdateEmailSent->bindValue( ':hash', $Hash);
+				$UpdateEmailSent->execute();
+			} catch (\Exception $e) {
+				if ( !$e instanceof Exceptions\MailException ) {
+					throw $e;
+				}
+			}
 		}
 		
 		$Response->redirect( '/assignments/view/' . $Assignment->AssignmentID );
@@ -124,26 +154,28 @@ class Assignments
 	
 	private static function GenerateRandomID( $Length = 32 )
 	{
-		if( function_exists( 'random_bytes' ) )
-		{
-			$Hash = random_bytes( $Length );
-		}
-		else if( function_exists( 'mcrypt_create_iv' ) )
-		{
-			$Hash = mcrypt_create_iv( $Length );
-		}
-		else if( function_exists( 'openssl_random_pseudo_bytes' ) )
-		{
-			$Hash = openssl_random_pseudo_bytes( $Length );
-		}
-		else
-		{
-			throw new \LogicException( 'Your PHP configuration does not have any cryptographically secure functions available.' );
-		}
-		
-		$Hash = hash( 'sha256', $Hash );
+		$Hash = hash( 'sha256', Students::generateRandomHash($Length) );
 		
 		// Split hash into sections of 8 characters
 		return implode( '-', str_split( $Hash, 8 ) );
+	}
+
+	private static function generateTestUrl( $Hash )
+	{
+		$URL = 'http://';
+
+		if (isset($_SERVER['HTTPS']) &&
+			($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1) ||
+			isset($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
+			$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'
+		)
+		{
+			$URL = 'https://';
+		}
+
+		$URL .= $_SERVER[ 'HTTP_HOST' ];
+		$URL .= '/private/' . $Hash;
+
+		return $URL;
 	}
 }

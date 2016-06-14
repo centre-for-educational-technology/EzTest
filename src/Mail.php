@@ -3,13 +3,13 @@ namespace System;
 
 class Mail
 {
-	public static function SendEmail( $Address, $Subject, $Body, $From )
+	public static function SendEmail( $Address, $Subject, $Body, $From, $EmbeddedImages )
 	{
 		$Mail = new \PHPMailer;
 		$Mail->IsHTML( true );
 		$Mail->Subject = $Subject;
 		$Mail->Body    = $Body;
-		$Mail->SMTPDebug = 2; echo '<pre>'; // DEBUG
+		$Mail->SMTPDebug = 0;
 		
 		if( !empty( Config::$MailHost ) )
 		{
@@ -28,11 +28,25 @@ class Mail
 		}
 		
 		$Mail->setFrom( Config::$MailSendFrom, $From . ' (' . Config::$SystemName . ')' );
-		$Mail->addAddress( $Address );
+		
+		if ( is_array( $Address ) )
+		{
+			$Mail->addAddress( $Address['email'], $Address['name'] );
+		} else {
+			$Mail->addAddress( $Address );
+		}
+
+		if ( $EmbeddedImages && is_array($EmbeddedImages) && count($EmbeddedImages) > 0 )
+		{
+			foreach ( $EmbeddedImages as $Image )
+			{
+				$Mail->addEmbeddedImage( $Image['path'], $Image['cid'], $Image['name'] );
+			}
+		}
 		
 		if( !$Mail->send() )
 		{
-			throw new \Exception( 'Failed to send email: ' . $Mail->ErrorInfo );
+			throw new Exceptions\MailException( 'Failed to send email: ' . $Mail->ErrorInfo );
 		}
 	}
 }
