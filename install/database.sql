@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `assignments_users` (
   `AssignmentID` int(11) unsigned DEFAULT NULL,
   `UserID` int(11) unsigned NOT NULL,
   `Hash` varchar(72) NOT NULL,
-  `LastVisit` datetime NOT NULL,
+  `LastVisit` datetime DEFAULT NULL,
   `EmailSent` tinyint(1) unsigned NOT NULL DEFAULT '0',
   UNIQUE KEY `Hash` (`Hash`),
   KEY `FK_assignments_users_assignments` (`AssignmentID`),
